@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {{ bootstrap.load_css() }}
+        {{ fontawesome_html() }}
+
+        <title>Yummy Week</title>
+    </head>
+    <body>
+        {{ bootstrap.load_js() }}
+        <div class="container">
+            {% for message in get_flashed_messages() %}
+                <div class="alert alert-warning">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            <div class="page-header mt-5">
+                <h2>
+                    {% block page_header %}{% endblock %}
+                </h2>
+            </div>
+
+            {% block page_content %}{% endblock %}
+        </div>
+    </body>
+</html>
+
