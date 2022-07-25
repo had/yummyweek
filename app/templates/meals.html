@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block page_header %}
+    Yummy Week~~ <a href="{{ url_for('main.index') }}"><i class="fas fa-home"></i></a>
+{% endblock %}
+
+
+{% block page_content %}
+<div class="card-columns">
+
+{% for meal in meals %}
+<div class="card">
+    <h3 class="card-header text-center">{{ meal.name }} </h3>
+    <div class="card-body">
+        <p class="card-text">Preparation ({{meal.prep_time_m}}): {{meal.prep_notes}} </p>
+        <p class="card-text">Cooking ({{meal.cooking_time_m}}): {{meal.cooking_notes}} </p>
+    </div>
+</div>
+{% endfor %}
+
+</div>
+
+{% endblock %}

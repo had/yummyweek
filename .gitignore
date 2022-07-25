@@ -136,3 +136,6 @@ dmypy.json
 
 # Some prototyping directory
 prototype/
+
+# Mac files
+.DS_Store

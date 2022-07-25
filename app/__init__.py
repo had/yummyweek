@@ -1,12 +1,12 @@
 from flask import Flask
-from flask_bootstrap import Bootstrap5
+from flask_bootstrap import Bootstrap4
 from flask_fontawesome import FontAwesome
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import config
 
 db = SQLAlchemy()
-bootstrap = Bootstrap5()
+bootstrap = Bootstrap4()
 fa = FontAwesome()
 migrate = Migrate()
 
@@ -22,5 +22,11 @@ def create_app(config_name):
 
     from .main import main as main_bp
     app.register_blueprint(main_bp)
+
+    from .meals import meals as meals_bp
+    app.register_blueprint(meals_bp)
+
+    from .planning import planning as planning_bp
+    app.register_blueprint(planning_bp)
 
     return app

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block page_header %}
+    <a href="{{ url_for('main.index') }}"><i class="fas fa-home"></i></a> > {{monthyear[0]}} {{monthyear[1]}}
+{% endblock %}
+
+
+{% block page_content %}
+
+<div class="table-responsive">
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Launch demo modal
+</button>
+
+<table class="table">
+
+    <tr>
+        {% for wd in weekdays %}
+        <th class="text-center">{{wd}}</th>
+        {% endfor %}
+    </tr>
+    {% for week in weeks%}
+    <tr>
+        {% for day in week %}
+        <td>
+            {% if day %}
+            <div class="card">
+                <h5 class="card-header text-center">{{ day }}</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Lunch <a class="btn btn-success btn-sm" data-toggle="modal" data-target="#AddMealModal" data-date="{{day}}"><i class="fa fa-plus" style="color:white"></i></a></li>
+                    <li class="list-group-item">Dinner</li>
+            </div>
+            {% endif %}
+
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+<div class="modal" id="AddMealModal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Meal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                PLOP
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
