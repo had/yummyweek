@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 
 {% block page_header %}
-    <a href="{{ url_for('main.index') }}"><i class="fas fa-home"></i></a> > {{monthname}} {{year}}
+    <a href="{{ url_for('main.index') }}"><i class="fas fa-home"></i></a>
 {% endblock %}
 
 
 {% block page_content %}
+<h2 class="text-center">
+    <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=prev[0], month=prev[1])}}">&laquo;</a>  {{monthname}} {{year}}  <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=next[0], month=next[1])}}">&raquo;</a>
+</h2>
 
 <div class="table-responsive">
 
@@ -85,6 +88,15 @@
     $('#AddMealModal').on('show.bs.modal', function (event) {
         let day = $(event.relatedTarget).data('day')
         $(this).find('.modal-body #day').val(day)
+        $.ajax({
+            type: 'POST',
+            url: '{{ url_for('.selected_meals', year=year, month=month) }}',
+            data: {'day': day}
+          }).then(function (data) {
+            $('.meals-select2').val(data);
+            $('.meals-select2').trigger('change');
+            console.log($('.meals-select2').select2('data'))
+          })
     })
 </script>
 {% endblock %}
