@@ -1,17 +1,13 @@
 {% extends "base.html" %}
 
 {% block page_header %}
-    <a href="{{ url_for('main.index') }}"><i class="fas fa-home"></i></a> > {{monthyear[0]}} {{monthyear[1]}}
+    <a href="{{ url_for('main.index') }}"><i class="fas fa-home"></i></a> > {{monthname}} {{year}}
 {% endblock %}
 
 
 {% block page_content %}
 
 <div class="table-responsive">
-
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-  Launch demo modal
-</button>
 
 <table class="table">
 
@@ -26,10 +22,20 @@
         <td>
             {% if day %}
             <div class="card">
-                <h5 class="card-header text-center">{{ day }}</h5>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Lunch <a class="btn btn-success btn-sm" data-toggle="modal" data-target="#AddMealModal" data-date="{{day}}"><i class="fa fa-plus" style="color:white"></i></a></li>
-                    <li class="list-group-item">Dinner</li>
+                <div class="card-header p-2 d-inline-flex">
+                    <h6 class="mr-2">{{ day }}</h6>
+                    <div class="ml-auto">
+                        <a class="btn btn-outline-secondary btn-sm p-1" data-toggle="modal" data-target="#AddMealModal" data-day="{{day}}"> <i class="fas fa-edit"></i></a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for meal in history[day] %}
+                        <li class="list-group-item p-1"><small>{{mealnames[meal]}}</small></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
             </div>
             {% endif %}
 
@@ -40,24 +46,45 @@
 </table>
 </div>
 
+{% import 'bootstrap/form.html' as wtf %}
+
 <div class="modal" id="AddMealModal" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Meal</h5>
+                <h5 class="modal-title">Add Meals</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                PLOP
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Save changes</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form method="POST" action="{{url_for('.add_meal', year=year, month=month)}}">
+                    {{ mealform.hidden_tag() }}
+                    {{ mealform.meals(class="form-select meals-select2") }}
+                    {{ mealform.submit() }}
+                </form>
             </div>
         </div>
     </div>
 </div>
 
+
+<script>
+    // enabling select2
+    $(document).ready(function() {
+        $('.meals-select2').select2(
+            {
+                dropdownAutoWidth : true,
+                width : '100%',
+                dropdownParent: $('#AddMealModal')
+            }
+        );
+    });
+
+    // passing data on to the form
+    $('#AddMealModal').on('show.bs.modal', function (event) {
+        let day = $(event.relatedTarget).data('day')
+        $(this).find('.modal-body #day').val(day)
+    })
+</script>
 {% endblock %}
