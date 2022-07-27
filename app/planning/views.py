@@ -38,9 +38,7 @@ def add_meal(year, month):
     mealform = SelectMealForm()
     if mealform.validate_on_submit():
         day = int(mealform.day.data)
-        print(day)
         set_history(year, month, day, mealform.meals.data)
-        print("SUCCESS: ", get_history(year, month))
     else:
         print(mealform.errors.values())
     return redirect(url_for('.date_plans', year=year, month=month))

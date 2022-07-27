@@ -9,7 +9,7 @@ class MealType(Enum):
 
 class Meal(db.Model):
     __tablename__ = "meals"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String, primary_key=True)
     name = db.Column(db.String)
     prep_notes = db.Column(db.String)
     prep_time_m = db.Column(db.Integer)

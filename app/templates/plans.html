@@ -7,7 +7,7 @@
 
 {% block page_content %}
 <h2 class="text-center">
-    <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=prev[0], month=prev[1])}}">&laquo;</a>  {{monthname}} {{year}}  <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=next[0], month=next[1])}}">&raquo;</a>
+    <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=prev[0], month=prev[1])}}">&laquo;</a>  {{monthname}} {{year}}  <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=next[0], month=next[1])}}">&raquo;</a> <a class="btn btn-light btn-lg p-2" href="{{url_for('.plans')}}">⊙</a>
 </h2>
 
 <div class="table-responsive">
@@ -49,7 +49,7 @@
 </table>
 </div>
 
-{% import 'bootstrap/form.html' as wtf %}
+{% import 'bootstrap4/form.html' as wtf %}
 
 <div class="modal" id="AddMealModal" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
