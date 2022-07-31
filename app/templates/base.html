@@ -1,3 +1,4 @@
+{% from 'bootstrap4/nav.html' import render_nav_item %}
 <!doctype html>
 <html lang="en">
     <head>
@@ -15,7 +16,20 @@
         <title>Yummy Week</title>
     </head>
     <body>
-
+        <nav class="navbar navbar-expand-lg navbar-light bg-light m-0 py-0">
+            <a class="navbar-brand m-0 p-0" href="{{url_for('main.index')}}">
+                <img src="{{ url_for('static', filename='noun-eating-cat.svg') }}" width="80" height="80" class="m-0 p-0 d-inline-block align-top" alt="">
+                <strong></strong>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent" style="font-size: 25px !important; ">
+                <ul class="navbar-nav mr-auto">
+                    {{ render_nav_item('main.index', 'Yummyweek', use_li=True) }}
+                    {{ render_nav_item('meals.meals', 'Meals', use_li=True) }}
+                    {{ render_nav_item('planning.plans', 'Planning', use_li=True) }}
+                    {{ render_nav_item('planning.suggest', 'Suggestions', use_li=True) }}
+                </ul>
+            </div>
+        </nav>
         <div class="container">
             {% for message in get_flashed_messages() %}
                 <div class="alert alert-warning">

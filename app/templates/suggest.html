@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+From date {{ start_date }} for {{ nb_days }} days:
+
+<ul class="list-group list-group-flush">
+{% for d, meals in suggestions.items() %}
+    <li class="list-group-item">
+        {{d}}
+        <small>
+            {% for meal in meals %} {{mealnames[meal]}} ; {% endfor %}
+        </small>
+    </li>
+{% endfor %}
+</ul>
+
+{% endblock %}

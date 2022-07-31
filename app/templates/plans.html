@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% block page_header %}
-    <a href="{{ url_for('main.index') }}"><i class="fas fa-home"></i></a>
-{% endblock %}
-
-
 {% block page_content %}
 <h2 class="text-center">
-    <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=prev[0], month=prev[1])}}">&laquo;</a>  {{monthname}} {{year}}  <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=next[0], month=next[1])}}">&raquo;</a> <a class="btn btn-light btn-lg p-2" href="{{url_for('.plans')}}">⊙</a>
+    <a class="btn btn-light btn-lg p-2" href="{{url_for('.plans')}}">⊙</a>
+    <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=prev[0], month=prev[1])}}">&laquo;</a>
+    {{monthname}} {{year}}
+    <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=next[0], month=next[1])}}">&raquo;</a>
+    <a class="btn btn-light btn-lg p-2" data-toggle="modal" data-target="#SuggestModal">
+<!--        <i class="fa fa-lightbulb"></i>-->💡
+    </a>
 </h2>
 
 <div class="table-responsive">
@@ -25,8 +26,10 @@
         <td>
             {% if day %}
             <div class="card">
-                <div class="card-header p-2 d-inline-flex">
-                    <h6 class="mr-2">{{ day }}</h6>
+                <div class="card-header border-light p-2 d-inline-flex {% if day == today %} bg-success {% endif %}">
+                    <h6 class="mr-2">
+                        {{ '⊙' if day == today else ''}} {{ day }}
+                    </h6>
                     <div class="ml-auto">
                         <a class="btn btn-outline-secondary btn-sm p-1" data-toggle="modal" data-target="#AddMealModal" data-day="{{day}}"> <i class="fas fa-edit"></i></a>
                     </div>
