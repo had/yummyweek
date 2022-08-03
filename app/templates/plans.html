@@ -2,10 +2,10 @@
 
 {% block page_content %}
 <h2 class="text-center">
-    <a class="btn btn-light btn-lg p-2" href="{{url_for('.plans')}}">⊙</a>
-    <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=prev[0], month=prev[1])}}">&laquo;</a>
+    <a class="btn btn-light btn-lg p-2" href="{{url_for('.calendar_today')}}">⊙</a>
+    <a class="btn btn-light btn-lg p-2" href="{{url_for('.calendar_month', year=prev[0], month=prev[1])}}">&laquo;</a>
     {{monthname}} {{year}}
-    <a class="btn btn-light btn-lg p-2" href="{{url_for('.date_plans', year=next[0], month=next[1])}}">&raquo;</a>
+    <a class="btn btn-light btn-lg p-2" href="{{url_for('.calendar_month', year=next[0], month=next[1])}}">&raquo;</a>
     <a class="btn btn-light btn-lg p-2" data-toggle="modal" data-target="#SuggestModal">
 <!--        <i class="fa fa-lightbulb"></i>-->💡
     </a>

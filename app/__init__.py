@@ -26,7 +26,7 @@ def create_app(config_name):
     from .meals import meals as meals_bp
     app.register_blueprint(meals_bp)
 
-    from .planning import planning as planning_bp
+    from .calendar import calendar as planning_bp
     app.register_blueprint(planning_bp)
 
     return app
