@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<div class="card-deck">
+{% for day in days %}
+    {% set params = parameters[day] %}
+    <li class="card">
+        <div class="card-header"><div class="card-title text-center">{{day}}</div></div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <b>Lunch</b> for {{params['lunch_nb']}}
+                <small>Prep time: {{params['lunch_cooking_time_available_m']}}m</small>
+            </li>
+        </ul>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <b>Dinner</b> for {{params['dinner_nb']}}
+                <small>Prep time: {{params['dinner_cooking_time_available_m']}}m</small>
+            </li>
+        </ul>
+    </li>
+
+
+{% endfor %}
+</div>
+
+{% endblock %}

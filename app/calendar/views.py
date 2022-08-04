@@ -1,4 +1,4 @@
-from flask import jsonify, request, render_template, redirect, url_for, flash
+from flask import jsonify, request, render_template, redirect, url_for
 
 from . import calendar
 
@@ -6,7 +6,6 @@ from .forms import SelectMealForm
 from datetime import date
 import calendar as py_cal
 from .meal_history import get_history, set_history
-from .meal_planning import suggest_meals
 from ..meals.meal_list import get_meals
 
 weekdays = list(py_cal.day_name)
@@ -32,7 +31,7 @@ def calendar_month(year, month):
     cal = py_cal.Calendar()
     now = date.today()
     today =  now.day if (now.year == year and now.month == month ) else -1
-    return render_template("plans.html", year=year, month=month, monthname=month_names[month],
+    return render_template("calendar.html", year=year, month=month, monthname=month_names[month],
                            weekdays=weekdays, weeks=cal.monthdayscalendar(year, month), mealform=mealform,
                            history=history, mealnames=mealnames, prev=prev, next=next, today=today)
 
@@ -51,19 +50,3 @@ def add_meal(year, month):
 def selected_meals(year, month):
     day = int(request.form['day'])
     return jsonify(get_history(year, month)[day])
-
-@calendar.route("/suggest")
-def suggest():
-    now = date.today()
-    duration = 7
-    meals = get_meals()
-    suggestions = suggest_meals(now, duration)
-    # suggestions = {
-    #     now: [
-    #         meals[0],
-    #         meals[1]
-    #     ]
-    # }
-    mealnames = {meal.id: meal.name for meal in get_meals()}
-    return render_template("suggest.html", start_date=str(now), nb_days=duration, mealnames=mealnames,
-                           suggestions=suggestions)

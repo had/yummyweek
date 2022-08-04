@@ -21,7 +21,7 @@ def read_mock_meals(path):
     return meals
 
 
-mock_food_env = os.environ.get('MOCK_FOOD')
+mock_food_env = os.environ.get('YUMMYWEEK_XLS')
 mock_meals = read_mock_meals(mock_food_env) if mock_food_env else [
     Meal(id="COURGETTES", name="Courgettes", prep_time_m=20, cooking_time_m=25, meal_type=MealType.dinner,
          periodicity_d=8),

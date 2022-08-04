@@ -1,9 +1,9 @@
 from datetime import timedelta
 from random import choice
 
-from .meal_history import get_history_range
-from ..meals.meal_list import get_meals
-from ..meals.models import MealType
+from app.calendar.meal_history import get_history_range
+from app.meals.meal_list import get_meals
+from app.meals.models import MealType
 
 
 def _date_range(date_1, nbdays):
@@ -39,3 +39,15 @@ def suggest_meals(date, duration):
         history.append(suggestion)
     print(results)
     return results
+
+# WIP
+# class MealPlanner:
+#     def __init__(self, date_from):
+#         self.date_from = date_from
+#         self.meals_dict = self.get_available_meals()
+#
+#     def get_available_meals(self):
+#         # read DB or other input
+#         meals = get_meals()
+#         #
+#         self.meals_dict
