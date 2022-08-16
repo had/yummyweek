@@ -1,15 +1,11 @@
-
-
 from datetime import timedelta
 from random import choice
 
 from app.calendar.meal_history import get_history_range
 from app.meals.meal_dao import get_meals, get_meal_elements
-from app.meals.models import MealType, Meal
-
-
-def _date_range(date_1, nbdays):
-    return [date_1 + timedelta(days=d) for d in range(nbdays + 1)]
+from app.meals.models import MealType
+from app.planner import date_range
+from app.planner.models import Suggestion
 
 
 def suggest_meal_date(date, planner):
@@ -22,16 +18,18 @@ def suggest_meal_date(date, planner):
     return res
 
 
-def suggest_meals(date, duration):
-    planner = MealPlanner(date)
-    results = {}
-    for day in _date_range(date, duration):
+def suggest_meals(date_, duration):
+    planner = MealPlanner(date_)
+    lunches, dinners = [], []
+    for day in date_range(date_, duration):
+        # TODO fix bug where we can suggest the same meal or elements for lunch and dinner in a same day
         suggestion = suggest_meal_date(day, planner)
-        results[day] = suggestion
+        lunches.append(suggestion[0])
+        dinners.append(suggestion[1])
         print("Suggesting: ", suggestion)
         planner.process_dated_meals(day, suggestion)
-    print(results)
-    return results
+    sugg = Suggestion(date=date_, duration=duration, lunches=";".join(lunches), dinners=";".join(dinners))
+    return sugg
 
 
 class MealPlanner:

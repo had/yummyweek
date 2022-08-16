@@ -1,5 +1,6 @@
 from .. import db
 
+
 class MealHistory(db.Model):
     __tablename__ = "meal_history"
     id = db.Column(db.Integer, primary_key=True)
