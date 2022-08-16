@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, flash
 
 
 from . import meals
-from .meal_list import get_meals
+from .meal_dao import get_meals
 
 
 

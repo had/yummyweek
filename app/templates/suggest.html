@@ -4,15 +4,24 @@
 
 From date {{ start_date }} for {{ nb_days }} days:
 
-<ul class="list-group list-group-flush">
+<table class="table table-hover">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Lunch</th>
+      <th scope="col">Dinner</th>
+    </tr>
+  </thead>
+  <tbody>
 {% for d, meals in suggestions.items() %}
-    <li class="list-group-item">
-        {{d}}
+    <tr>
+      <th scope="row">{{d}}</th>
+{% for meal in meals %} <td>{{mealnames[meal]}}</td> {% endfor %}
         <small>
-            {% for meal in meals %} {{mealnames[meal]}} ; {% endfor %}
-        </small>
-    </li>
-{% endfor %}
-</ul>
 
+        </small>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
 {% endblock %}

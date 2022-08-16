@@ -11,10 +11,9 @@ def _last_day_of_month(year, month):
 
 def get_history_range(range_from, range_to):
     rows = MealHistory.query.filter(MealHistory.date.between(range_from, range_to)).order_by(MealHistory.date).all()
-    v = [[] for _ in range((range_to-range_from).days + 2)]
+    v = {}
     for d, meals in groupby(rows, key=lambda r: r.date):
-        day = (d - range_from).days + 1
-        v[day] = [m.meal for m in meals]
+        v[d] = [m.meal for m in meals]
     return v
 
 

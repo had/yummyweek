@@ -1,53 +1,83 @@
+
+
 from datetime import timedelta
 from random import choice
 
 from app.calendar.meal_history import get_history_range
-from app.meals.meal_list import get_meals
-from app.meals.models import MealType
+from app.meals.meal_dao import get_meals, get_meal_elements
+from app.meals.models import MealType, Meal
 
 
 def _date_range(date_1, nbdays):
-    return [date_1 + timedelta(days=d) for d in range(nbdays+1)]
+    return [date_1 + timedelta(days=d) for d in range(nbdays + 1)]
 
-def suggest_meal_date(date, history, all_meals):
-    for days_since, past_meals in enumerate(reversed(history)):
-        for past_meal in past_meals:
-            if past_meal in all_meals and days_since <= all_meals[past_meal].periodicity_d:
-                #print(f"Removing {past_meal} last eaten {days_since} ago")
-                del all_meals[past_meal]
-    try:
-        lunch_meals = [m for m in all_meals.values() if m.meal_type != MealType.dinner]
-        lunch_sugg = choice(lunch_meals).id
-        dinner_meals = [m for m in all_meals.values() if (m.meal_type != MealType.lunch) and m.id != lunch_sugg]
-        dinner_sugg = choice(dinner_meals).id
-        print(f"{len(all_meals)} eligible meals left for {date} ({len(lunch_meals)} lunches, {len(dinner_meals)} dinners)")
-        res = [lunch_sugg, dinner_sugg]
-        print("RES", res)
-        return res
-    except:
-        return []
+
+def suggest_meal_date(date, planner):
+    meals = planner.get_eligible_meals(date)
+    lunch_meals = [m for m in meals if m.meal_type != MealType.dinner]
+    lunch_sugg = choice(lunch_meals).id
+    dinner_meals = [m for m in meals if (m.meal_type != MealType.lunch) and m.id != lunch_sugg]
+    dinner_sugg = choice(dinner_meals).id
+    res = [lunch_sugg, dinner_sugg]
+    return res
+
 
 def suggest_meals(date, duration):
-    all_meals = {m.id:m for m in get_meals() if m.periodicity_d}
-    print(f"{len(all_meals)} meals have valid periodicity")
-    max_periodicity = max([m.periodicity_d for m in all_meals.values()])
-    history = get_history_range(date-timedelta(days=max_periodicity), date)
+    planner = MealPlanner(date)
     results = {}
     for day in _date_range(date, duration):
-        suggestion = suggest_meal_date(day, history, all_meals.copy())
+        suggestion = suggest_meal_date(day, planner)
         results[day] = suggestion
-        history.append(suggestion)
+        print("Suggesting: ", suggestion)
+        planner.process_dated_meals(day, suggestion)
     print(results)
     return results
 
-# WIP
-# class MealPlanner:
-#     def __init__(self, date_from):
-#         self.date_from = date_from
-#         self.meals_dict = self.get_available_meals()
-#
-#     def get_available_meals(self):
-#         # read DB or other input
-#         meals = get_meals()
-#         #
-#         self.meals_dict
+
+class MealPlanner:
+    def __init__(self, date_from, elements=None, meals=None, history=None):
+        self.date_from = date_from
+        self.elements = {e.id: e for e in (elements or get_meal_elements())}
+        self.meals_dict = meals or get_meals()
+        self.max_periodicity = max([m.periodicity_d for m in self.meals_dict.values() if m.periodicity_d])
+        self.not_before_table = {}
+        history = history or get_history_range(date_from - timedelta(days=self.max_periodicity), date_from)
+        for day, meals_that_day in history.items():
+            self.process_dated_meals(day, meals_that_day)
+
+    def process_dated_meals(self, date, meals):
+        for m_id in meals:
+            if m_id in self.elements:
+                elt = self.elements[m_id]
+                self.not_before_table[elt.id] = date + timedelta(days=elt.periodicity_d)
+            elif "+" in m_id:
+                # compounded meal, need to decompose the elements
+                meal_elts = [self.elements[elt_id] for elt_id in m_id.split("+")]
+                for elt in meal_elts:
+                    self.not_before_table[elt.id] = date + timedelta(days=elt.periodicity_d)
+            else:
+                meal = self.meals_dict.get(m_id)
+                if not meal:
+                    print(f"Warning: cannot find {m_id} in current list of meals")
+                    continue
+                self.not_before_table[meal.id] = date + timedelta(days=meal.periodicity_d)
+
+    def get_eligible_meals(self, date):
+        return self._history_filter(date, self.meals_dict.values())
+
+    # TODO: turn that into something more functional (yield and co)
+    def _history_filter(self, date, meals):
+        def is_eligible_from_history(x):
+            return x.id not in self.not_before_table or date >= self.not_before_table[x.id]
+
+        history_eligible = []
+        for m in meals:
+            if "+" in m.id:
+                # compounded meal, need to decompose the elements
+                meal_elts = [self.elements[elt_id] for elt_id in m.id.split("+")]
+                if all([is_eligible_from_history(elt) for elt in meal_elts]):
+                    history_eligible.append(m)
+            else:
+                if is_eligible_from_history(m):
+                    history_eligible.append(m)
+        return history_eligible
