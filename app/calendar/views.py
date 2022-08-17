@@ -52,3 +52,7 @@ def add_meal(year, month):
 def selected_meals(year, month):
     day = int(request.form['day'])
     return jsonify(get_history(year, month).get(date(year, month, day)))
+
+@calendar.route("/js/calendar-script/<year>/<month>")
+def calendar_script(year, month):
+    return render_template("calendar-script.js", year=year, month=month)

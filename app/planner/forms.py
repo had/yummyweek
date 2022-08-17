@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, SelectMultipleField, SubmitField
+from wtforms import HiddenField, SelectField, SubmitField
 
 class ModifySuggestionForm(FlaskForm):
     date = HiddenField("date")
-    suggestion = SelectMultipleField("Choose another suggestion", choices=[])
+    suggestion = SelectField("Choose another suggestion", choices=[])
     submit = SubmitField("Confirm")

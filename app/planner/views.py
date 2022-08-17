@@ -9,6 +9,7 @@ from .meal_planning import MealPlanner
 from .models import MealTime
 from .params import get_params
 from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion
+from ..meals.meal_dao import get_meals
 
 weekdays = list(calendar.day_name)
 
@@ -34,10 +35,12 @@ def get_choices():
     mock_data = ["STUFFED_TOMATOES", "RICE_SALAD", "COUSCOUS"]
     form_data = request.form['date'].split("/")
     d = date.fromisoformat(form_data[0])
-    lunch_or_dinner = MealTime.lunch if form_data[1] == "l" else MealTime.dinner
-    choices = get_suggestion(d, lunch_or_dinner).eligible_meals.split(";")
+    lunch_or_dinner = MealTime.lunch if form_data[1] == "L" else MealTime.dinner
+    suggestion = get_suggestion(d, lunch_or_dinner)
+    meal_dict = get_meals()
+    choices = suggestion.eligible_meals.split(";")
     print("GET_CHOICES: ", d, lunch_or_dinner, choices)
-    return jsonify({m: m for m in choices})
+    return jsonify({"choices": {m: meal_dict[m].name for m in choices}, "suggestion": suggestion.suggestion})
 
 
 @planner.route("/suggest/redo")
@@ -54,3 +57,7 @@ def params():
     parameters = get_params()
     print(parameters)
     return render_template("params.html", days=weekdays, parameters=parameters)
+
+@planner.route("/js/planner-script")
+def planner_script():
+    return render_template("planner-script.js")
