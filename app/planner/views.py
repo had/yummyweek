@@ -8,7 +8,7 @@ from .forms import ModifySuggestionForm
 from .meal_planning import MealPlanner
 from .models import MealTime
 from .params import get_params
-from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion
+from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion, update_suggestion
 from ..meals.meal_dao import get_meals
 
 weekdays = list(calendar.day_name)
@@ -43,13 +43,24 @@ def get_choices():
     return jsonify({"choices": {m: meal_dict[m].name for m in choices}, "suggestion": suggestion.suggestion})
 
 
+@planner.route("/suggest/modify", methods=["POST"])
+def modify_suggestion():
+    suggestionform = ModifySuggestionForm()
+    if suggestionform.submit():
+        form_data = suggestionform.date.data.split("/")
+        d = date.fromisoformat(form_data[0])
+        lunch_or_dinner = MealTime.lunch if form_data[1] == "L" else MealTime.dinner
+        update_suggestion(d, lunch_or_dinner, suggestionform.suggestion.data)
+    else:
+        print("### modify_suggestion: ", suggestionform.errors)
+    return redirect(url_for(".suggest"))
+
 @planner.route("/suggest/redo")
 def redo_suggest():
     now = date.today()
     duration = 7
     _ = recreate_suggestion(now, duration)
     return redirect(url_for('.suggest'))
-
 
 
 @planner.route("/suggest/params")

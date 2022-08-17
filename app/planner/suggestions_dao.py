@@ -39,6 +39,10 @@ def get_or_create_suggestions(from_date, duration):
     db.session.commit()
     return suggestions_res
 
+def update_suggestion(date_, time_, new_meal_id):
+    Suggestion.query.filter_by(date=date_, time=time_).update({Suggestion.suggestion: new_meal_id})
+    db.session.commit()
+
 def recreate_suggestion(from_date, duration):
     Suggestion.query.filter(Suggestion.date >= from_date).delete()
     return get_or_create_suggestions(from_date, duration)

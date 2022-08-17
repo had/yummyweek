@@ -45,7 +45,7 @@ def add_meal(year, month):
         day = int(mealform.day.data)
         set_history(year, month, day, mealform.meals.data)
     else:
-        print(mealform.errors.values())
+        print("### add_meal: ", mealform.errors.values())
     return redirect(url_for('.calendar_month', year=year, month=month))
 
 @calendar.route("/calendar/<int:year>/<int:month>/meals", methods=["POST"])

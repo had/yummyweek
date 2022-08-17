@@ -34,7 +34,7 @@
 </table>
 </div>
 
-
+{% from 'bootstrap4/form.html' import render_field %}
 <div class="modal" id="ModifySuggestionModal" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -45,18 +45,19 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{#url_for('.modify_suggestion')#}">
+                <form method="POST" action="{{url_for('.modify_suggestion')}}">
                     {{ suggestionform.hidden_tag() }}
+                    {{ render_field(suggestionform.suggestion, class="form-select suggestion-select2") }}
+                    {{ render_field(suggestionform.submit) }}
+                    {# suggestionform.hidden_tag() }}
                     {{ suggestionform.suggestion(class="form-select suggestion-select2") }}
-                    {{ suggestionform.submit() }}
+                    {{ suggestionform.submit() #}
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-<script src="{{url_for('.planner_script')}}">
-
-</script>
+<script src="{{url_for('.planner_script')}}"></script>
 
 {% endblock %}

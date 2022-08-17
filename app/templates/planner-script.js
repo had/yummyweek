@@ -1,14 +1,3 @@
-// enabling select2
-$(document).ready(function() {
-    $('.suggestion-select2').select2(
-        {
-            dropdownAutoWidth : true,
-            width : '100%',
-            dropdownParent: $('#ModifySuggestionModal')
-        }
-    );
-});
-
 // passing data on to the form
 $('#ModifySuggestionModal').on('show.bs.modal', function (event) {
     let date = $(event.relatedTarget).data('date')
