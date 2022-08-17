@@ -42,6 +42,7 @@ def read_mock_food(path):
         if d['active'] != 'Y':
             continue
         del d['active']
+        d['meal_type'] = MealType(d['meal_type'])
         meals.append(Meal(**d))
     print(f"Found {len(meals)} meals")
 
@@ -65,7 +66,7 @@ def generate_available_meals(elements, meals):
                 prep_time = sum([e.prep_time_m for e in cm])
                 cooking_time = sum([e.cooking_time_m for e in cm])
                 periodicity = max([e.periodicity_d for e in cm])
-                meal_type = m.meal_type
+                meal_type = MealType(m.meal_type)
                 result[id_] = Meal(id=id_, name=name, meal_type=meal_type, prep_time_m=prep_time,
                                    cooking_time_m=cooking_time, periodicity_d=periodicity)
         else:

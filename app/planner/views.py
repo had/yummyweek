@@ -1,12 +1,14 @@
 import calendar
 
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, jsonify, request
 from datetime import date
 from . import planner, date_range
+from .forms import ModifySuggestionForm
 
 from .meal_planning import MealPlanner
+from .models import MealTime
 from .params import get_params
-from .suggestions_dao import get_or_create_suggestions, recreate_suggestion
+from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion
 
 weekdays = list(calendar.day_name)
 
@@ -15,22 +17,27 @@ weekdays = list(calendar.day_name)
 def suggest():
     now = date.today()
     duration = 7
+    suggestionform = ModifySuggestionForm()
     suggestions = get_or_create_suggestions(now, duration)
-    suggested_meals = {}
-    lunches = suggestions.lunches.split(';')
-    dinners = suggestions.dinners.split(';')
-    for i, d in enumerate(date_range(now, duration)):
-        suggested_meals[d] = [lunches[i], dinners[i]]
+    print([(s.date, s.time, s.suggestion) for s in suggestions])
+    lunches = [s.suggestion for s in suggestions[::2]]
+    dinners = [s.suggestion for s in suggestions[1::2]]
     planner = MealPlanner(now)
-    # suggestions = {
-    #     now: [
-    #         meals[0],
-    #         meals[1]
-    #     ]
-    # }
     mealnames = {k: v.name for k, v in planner.meals_dict.items()}
     return render_template("suggest.html", start_date=str(now), nb_days=duration, mealnames=mealnames,
-                           suggestions=suggested_meals)
+                           suggestionform=suggestionform, dates=date_range(now, duration),
+                           suggested_lunches=lunches, suggested_dinners=dinners)
+
+
+@planner.route("/suggest/choices", methods=["POST"])
+def get_choices():
+    mock_data = ["STUFFED_TOMATOES", "RICE_SALAD", "COUSCOUS"]
+    form_data = request.form['date'].split("/")
+    d = date.fromisoformat(form_data[0])
+    lunch_or_dinner = MealTime.lunch if form_data[1] == "l" else MealTime.dinner
+    choices = get_suggestion(d, lunch_or_dinner).eligible_meals.split(";")
+    print("GET_CHOICES: ", d, lunch_or_dinner, choices)
+    return jsonify({m: m for m in choices})
 
 
 @planner.route("/suggest/redo")
@@ -39,6 +46,7 @@ def redo_suggest():
     duration = 7
     _ = recreate_suggestion(now, duration)
     return redirect(url_for('.suggest'))
+
 
 
 @planner.route("/suggest/params")

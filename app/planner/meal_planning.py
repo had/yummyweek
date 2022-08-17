@@ -4,32 +4,17 @@ from random import choice
 from app.calendar.meal_history import get_history_range
 from app.meals.meal_dao import get_meals, get_meal_elements
 from app.meals.models import MealType
-from app.planner import date_range
-from app.planner.models import Suggestion
+from app.planner.models import MealTime
 
 
-def suggest_meal_date(date, planner):
+def suggest_meal(date, time, planner):
     meals = planner.get_eligible_meals(date)
-    lunch_meals = [m for m in meals if m.meal_type != MealType.dinner]
-    lunch_sugg = choice(lunch_meals).id
-    dinner_meals = [m for m in meals if (m.meal_type != MealType.lunch) and m.id != lunch_sugg]
-    dinner_sugg = choice(dinner_meals).id
-    res = [lunch_sugg, dinner_sugg]
-    return res
-
-
-def suggest_meals(date_, duration):
-    planner = MealPlanner(date_)
-    lunches, dinners = [], []
-    for day in date_range(date_, duration):
-        # TODO fix bug where we can suggest the same meal or elements for lunch and dinner in a same day
-        suggestion = suggest_meal_date(day, planner)
-        lunches.append(suggestion[0])
-        dinners.append(suggestion[1])
-        print("Suggesting: ", suggestion)
-        planner.process_dated_meals(day, suggestion)
-    sugg = Suggestion(date=date_, duration=duration, lunches=";".join(lunches), dinners=";".join(dinners))
-    return sugg
+    if time == MealTime.lunch:
+        eligible_meals = [m for m in meals if m.meal_type != MealType.dinner]
+    else:
+        eligible_meals = [m for m in meals if m.meal_type != MealType.lunch]
+    suggestion = choice(eligible_meals).id
+    return eligible_meals, suggestion
 
 
 class MealPlanner:
