@@ -1,4 +1,4 @@
-from .models import Meal, MealType, MealElement
+from .models import Meal, MealType, MealElement, Recipe
 import os
 import itertools
 from collections import defaultdict
@@ -84,12 +84,43 @@ mock_elements, mock_meals = read_mock_food(mock_food_env) if mock_food_env else 
 mock_meals_2 = generate_available_meals(mock_elements, mock_meals)
 
 
+def parse_ingredients(ingredients_str):
+    ingr_list = ingredients_str.split("|") if ingredients_str else []
+    # TODO: further parse the quantities
+    return ingr_list
+
+
+def read_mock_recipes(path):
+    import pandas as pd
+    import numpy as np
+    recipes = []
+    recipes_df = pd.read_excel(path, sheet_name="food_recipes").replace({np.nan: None})
+    for _, row in recipes_df.iterrows():
+        d = row.to_dict()
+        recipes.append(Recipe(**d))
+    return {r.id: parse_ingredients(r.ingredients) for r in recipes}
+
+
+mock_recipes = read_mock_recipes(mock_food_env) if mock_food_env else {}
+
+
 def get_meal_elements():
     return mock_elements
+
 
 def get_meals_unprocessed():
     return mock_meals
 
+
 def get_meals():
     return mock_meals_2
 
+
+def get_recipes():
+    return mock_recipes
+
+
+def ingredients_for_meals(meals):
+    meals_or_elements = [e for m in meals for e in m.split('+')]
+    recipes_dict = get_recipes()
+    return [i for e in meals_or_elements for i in recipes_dict.get(e, [])]

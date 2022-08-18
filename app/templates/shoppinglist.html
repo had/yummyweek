@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<h1 class="display-4">Shopping list</h1>
+
+<ul class="list-group list-group-flush pb-5">
+{% for shopping_item in ingredients %}
+    <li class="list-group-item">{{shopping_item}}</li>
+{% endfor %}
+</ul>
+
+{% endblock %}
