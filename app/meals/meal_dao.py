@@ -1,6 +1,7 @@
 from .models import Meal, MealType, MealElement, Recipe
 import os
 import itertools
+from more_itertools import partition
 from collections import defaultdict
 
 checks = ["periodicity_d", "prep_time_m", "cooking_time_m"]
@@ -84,11 +85,6 @@ mock_elements, mock_meals = read_mock_food(mock_food_env) if mock_food_env else 
 mock_meals_2 = generate_available_meals(mock_elements, mock_meals)
 
 
-def parse_ingredients(ingredients_str):
-    ingr_list = ingredients_str.split("|") if ingredients_str else []
-    # TODO: further parse the quantities
-    return ingr_list
-
 
 def read_mock_recipes(path):
     import pandas as pd
@@ -98,7 +94,7 @@ def read_mock_recipes(path):
     for _, row in recipes_df.iterrows():
         d = row.to_dict()
         recipes.append(Recipe(**d))
-    return {r.id: parse_ingredients(r.ingredients) for r in recipes}
+    return recipes
 
 
 mock_recipes = read_mock_recipes(mock_food_env) if mock_food_env else {}
@@ -120,7 +116,44 @@ def get_recipes():
     return mock_recipes
 
 
-def ingredients_for_meals(meals):
-    meals_or_elements = [e for m in meals for e in m.split('+')]
-    recipes_dict = get_recipes()
-    return [i for e in meals_or_elements for i in recipes_dict.get(e, [])]
+class RecipesDB:
+    def __init__(self, recipes=None):
+        def parse_ingredients(ingredients_str):
+            ingr_list = ingredients_str.split("|") if ingredients_str else []
+            return ingr_list
+
+        recipes = recipes or get_recipes()
+        self.recipes_ingr = {r.id: parse_ingredients(r.ingredients) for r in recipes}
+
+
+    def ingredients_for_meals(self, meals):
+        meals_or_elements = [e for m in meals for e in m.split('+')]
+        ingredients = [i for e in meals_or_elements for i in self.recipes_ingr.get(e, [])]
+        print(ingredients)
+        uncountable_ingr, countable_ingr = partition(lambda i: "*" in i,
+                                                     [ingr for e in meals_or_elements for ingr in self.recipes_ingr.get(e, [])])
+        processed_ingr = {ingr: "" for ingr in uncountable_ingr}
+        # aggregate countable ingredients (with "*" in the string)
+        # for ex. "potatoes*300 g" and "potatoes*500 g" should result in "potatoes: 800 g"
+        # if there are several types like "egplant*2" and "eggplant*300 g" it should return "eggplant: 2 unit and 300 g"
+        # TODO: handle singular vs. plural nouns
+        grouped_ingr = itertools.groupby(sorted([i.split("*") for i in countable_ingr]), key=lambda x:x[0])
+        for ingr, counters_gr in grouped_ingr:
+            parsed_counters = []
+            counters = [c[1] for c in counters_gr]
+            for c in counters:
+                if " " in c:
+                    parsed_counters.append(c.split(" ")[::-1]) # we reverse the list because we want units first
+                else:
+                    # add fake unit when none is provided
+                    parsed_counters.append(["",c])
+            aggregated_counters = []
+            print("^^^ ", ingr, " // ", parsed_counters)
+            for key, pc_gr in itertools.groupby(sorted(parsed_counters), key=lambda c: c[0]):
+                pc = [c[1] for c in pc_gr]
+                aggreg = sum(map(int, pc))
+                print(ingr, aggreg, key)
+                aggregated_counters.append(f"{aggreg} {key}")
+            processed_ingr[ingr] = ' and '.join(aggregated_counters).strip()
+        print(processed_ingr)
+        return processed_ingr

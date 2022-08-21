@@ -9,7 +9,7 @@ from .meal_planning import MealPlanner
 from .models import MealTime
 from .params import get_params
 from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion, update_suggestion
-from ..meals.meal_dao import get_meals, ingredients_for_meals
+from ..meals.meal_dao import get_meals, RecipesDB
 
 weekdays = list(calendar.day_name)
 weekdays_abbr = list(calendar.day_abbr)
@@ -70,7 +70,8 @@ def shoppinglist():
     now = date.today()
     duration = 7
     suggestions = get_or_create_suggestions(now, duration)
-    ingr_list = ingredients_for_meals([s.suggestion for s in suggestions])
+    recipesDB = RecipesDB()
+    ingr_list = recipesDB.ingredients_for_meals([s.suggestion for s in suggestions])
     print(" -*- ", ingr_list)
     return render_template("shoppinglist.html", ingredients=ingr_list)
 
