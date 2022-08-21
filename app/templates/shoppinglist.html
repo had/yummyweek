@@ -5,8 +5,11 @@
 <h1 class="display-4">Shopping list</h1>
 
 <ul class="list-group list-group-flush pb-5">
-{% for item, qty in ingredients.items() %}
+{% for cat, ingredients in ingredients_grouped.items() %}
+    <li class="list-group-item list-group-item-success">{{cat}}</li>
+{% for item, qty in ingredients %}
     <li class="list-group-item">{{item}}: {{qty}}</li>
+{% endfor %}
 {% endfor %}
 </ul>
 

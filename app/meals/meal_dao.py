@@ -1,6 +1,6 @@
-from .models import Meal, MealType, MealElement, Recipe
+from .models import Meal, MealType, MealElement, Recipe, Ingredient
 import os
-import itertools
+from itertools import groupby, product
 from more_itertools import partition
 from collections import defaultdict
 
@@ -60,7 +60,7 @@ def generate_available_meals(elements, meals):
         if m.elements:
             elt_types = m.elements.split(';')
             meal_elements = [elements_by_type[t] for t in elt_types]
-            compounded_meals = itertools.product(*meal_elements)
+            compounded_meals = product(*meal_elements)
             for cm in compounded_meals:
                 id_ = '+'.join([e.id for e in cm])
                 name = ' & '.join([e.name for e in cm])
@@ -85,7 +85,6 @@ mock_elements, mock_meals = read_mock_food(mock_food_env) if mock_food_env else 
 mock_meals_2 = generate_available_meals(mock_elements, mock_meals)
 
 
-
 def read_mock_recipes(path):
     import pandas as pd
     import numpy as np
@@ -98,6 +97,20 @@ def read_mock_recipes(path):
 
 
 mock_recipes = read_mock_recipes(mock_food_env) if mock_food_env else {}
+
+
+def read_mock_ingredient_per_categories(path):
+    import pandas as pd
+    import numpy as np
+    ingredients_per_category = {}
+    ingredients_df = pd.read_excel(path, sheet_name="food_ingredients_categories").replace({np.nan: None})
+    for _, row in ingredients_df.iterrows():
+        d = row.to_dict()
+        ingredients_per_category[d["ingredient"]] = Ingredient(id=d["ingredient"], category=d["category"])
+    return ingredients_per_category
+
+
+mock_ingredient_per_category = read_mock_ingredient_per_categories(mock_food_env) if mock_food_env else {}
 
 
 def get_meal_elements():
@@ -116,6 +129,10 @@ def get_recipes():
     return mock_recipes
 
 
+def get_ingredient_per_category():
+    return mock_ingredient_per_category
+
+
 class RecipesDB:
     def __init__(self, recipes=None):
         def parse_ingredients(ingredients_str):
@@ -125,31 +142,31 @@ class RecipesDB:
         recipes = recipes or get_recipes()
         self.recipes_ingr = {r.id: parse_ingredients(r.ingredients) for r in recipes}
 
-
     def ingredients_for_meals(self, meals):
         meals_or_elements = [e for m in meals for e in m.split('+')]
         ingredients = [i for e in meals_or_elements for i in self.recipes_ingr.get(e, [])]
         print(ingredients)
         uncountable_ingr, countable_ingr = partition(lambda i: "*" in i,
-                                                     [ingr for e in meals_or_elements for ingr in self.recipes_ingr.get(e, [])])
+                                                     [ingr for e in meals_or_elements for ingr in
+                                                      self.recipes_ingr.get(e, [])])
         processed_ingr = {ingr: "" for ingr in uncountable_ingr}
         # aggregate countable ingredients (with "*" in the string)
         # for ex. "potatoes*300 g" and "potatoes*500 g" should result in "potatoes: 800 g"
         # if there are several types like "egplant*2" and "eggplant*300 g" it should return "eggplant: 2 unit and 300 g"
         # TODO: handle singular vs. plural nouns
-        grouped_ingr = itertools.groupby(sorted([i.split("*") for i in countable_ingr]), key=lambda x:x[0])
+        grouped_ingr = groupby(sorted([i.split("*") for i in countable_ingr]), key=lambda x: x[0])
         for ingr, counters_gr in grouped_ingr:
             parsed_counters = []
             counters = [c[1] for c in counters_gr]
             for c in counters:
                 if " " in c:
-                    parsed_counters.append(c.split(" ")[::-1]) # we reverse the list because we want units first
+                    parsed_counters.append(c.split(" ")[::-1])  # we reverse the list because we want units first
                 else:
                     # add fake unit when none is provided
-                    parsed_counters.append(["",c])
+                    parsed_counters.append(["", c])
             aggregated_counters = []
             print("^^^ ", ingr, " // ", parsed_counters)
-            for key, pc_gr in itertools.groupby(sorted(parsed_counters), key=lambda c: c[0]):
+            for key, pc_gr in groupby(sorted(parsed_counters), key=lambda c: c[0]):
                 pc = [c[1] for c in pc_gr]
                 aggreg = sum(map(int, pc))
                 print(ingr, aggreg, key)
@@ -157,3 +174,8 @@ class RecipesDB:
             processed_ingr[ingr] = ' and '.join(aggregated_counters).strip()
         print(processed_ingr)
         return processed_ingr
+
+    def ingredients_for_meals_groupby_(self, meals):
+
+        ingredient_per_category = get_ingredient_per_category()
+        return groupby(sorted(processed_ingr), key=lambda i: ingredient_per_category[c].category)

@@ -42,4 +42,10 @@ class Meal(db.Model):
 class Recipe(db.Model):
     __tablename__ = "recipes"
     id = db.Column(db.String, primary_key=True)
+    # note: this is a pipe-separated string with list and quantity of ingredients (see unit-tests)
     ingredients = db.Column(db.String)
+
+class Ingredient(db.Model):
+    __tablename__ = "ingredients"
+    id = db.Column(db.String, primary_key=True)
+    category = db.Column(db.String)

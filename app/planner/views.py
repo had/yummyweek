@@ -1,4 +1,5 @@
 import calendar
+from collections import defaultdict
 
 from flask import render_template, redirect, url_for, jsonify, request
 from datetime import date
@@ -9,7 +10,7 @@ from .meal_planning import MealPlanner
 from .models import MealTime
 from .params import get_params
 from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion, update_suggestion
-from ..meals.meal_dao import get_meals, RecipesDB
+from ..meals.meal_dao import get_meals, RecipesDB, get_ingredient_per_category
 
 weekdays = list(calendar.day_name)
 weekdays_abbr = list(calendar.day_abbr)
@@ -72,8 +73,13 @@ def shoppinglist():
     suggestions = get_or_create_suggestions(now, duration)
     recipesDB = RecipesDB()
     ingr_list = recipesDB.ingredients_for_meals([s.suggestion for s in suggestions])
+    ingredient_grouped = defaultdict(list)
+    ingredient_per_category = get_ingredient_per_category()
+    for k,v in ingr_list.items():
+        ingredient_grouped[ingredient_per_category[k].category].append((k,v))
+    print(ingredient_grouped)
     print(" -*- ", ingr_list)
-    return render_template("shoppinglist.html", ingredients=ingr_list)
+    return render_template("shoppinglist.html", ingredients_grouped=ingredient_grouped)
 
 @planner.route("/suggest/params")
 def params():
