@@ -3,7 +3,6 @@ bootstrap-flask
 flask-wtf
 flask-sqlalchemy
 flask-migrate
-flask-fontawesome
 python-dateutil
 sqlalchemy
 more-itertools
