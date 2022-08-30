@@ -1,3 +1,5 @@
+from itertools import groupby
+
 from flask import jsonify, request, render_template, redirect, url_for
 
 from . import calendar
@@ -7,6 +9,7 @@ from datetime import date
 import calendar as py_cal
 from .meal_history import get_history, set_history
 from ..meals.meal_dao import get_meals, get_meal_elements
+from ..planner.suggestions_dao import get_suggestions
 
 weekdays = list(py_cal.day_name)
 month_names = list(py_cal.month_name)
@@ -21,11 +24,16 @@ def calendar_today():
 
 @calendar.route("/calendar/<int:year>/<int:month>")
 def calendar_month(year, month):
-    mealform = SelectMealForm()
+    meal_form = SelectMealForm()
+    # retrieve history and suggestions
     history = {d.day:meals for d,meals in get_history(year, month).items()}
-    print(history)
-    mealnames = {m_id: meal.name for m_id, meal in get_meals().items()}
-    mealnames.update({elt.id:elt.name for elt in get_meal_elements()})
+    _, month_duration = py_cal.monthrange(year, month)
+    raw_suggestions = get_suggestions(date(year, month, 1), date(year, month, month_duration))
+    suggestions = {date_.day:[s.suggestion for s in s_group if s.committed]
+                   for date_, s_group in groupby(raw_suggestions, key=lambda s: s.date)}
+    # get meal names mapping
+    meal_names = {m_id: meal.name for m_id, meal in get_meals().items()}
+    meal_names.update({elt.id:elt.name for elt in get_meal_elements()})
     # previous/next month links
     prev = (year - 1, 12) if month == 1 else (year, month - 1)
     next_ = (year + 1, 1) if month == 12 else (year, month + 1)
@@ -34,8 +42,9 @@ def calendar_month(year, month):
     now = date.today()
     today = now.day if (now.year == year and now.month == month ) else -1
     return render_template("calendar.html", year=year, month=month, monthname=month_names[month],
-                           weekdays=weekdays, weeks=cal.monthdayscalendar(year, month), mealform=mealform,
-                           history=history, mealnames=mealnames, prev=prev, next=next_, today=today)
+                           weekdays=weekdays, weeks=cal.monthdayscalendar(year, month), mealform=meal_form,
+                           history=history, suggestions=suggestions, mealnames=meal_names,
+                           prev=prev, next=next_, today=today)
 
 
 @calendar.route("/calendar/<int:year>/<int:month>/add_meal", methods=["POST"])

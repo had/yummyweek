@@ -27,7 +27,7 @@
         <td>
             {% set lunch, l_committed = suggested_lunches[loop.index0] %}
             {% if l_committed %}
-                <span class="badge badge-success">{{mealnames[lunch]}}</span>
+                <span class="badge badge-pill badge-success">{{mealnames[lunch]}}</span>
                 <i class="fa-regular fa-calendar-check"></i>
             {% else %}
                 {{mealnames[lunch]}}

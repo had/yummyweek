@@ -6,9 +6,6 @@
     <a class="btn btn-light btn-lg p-2" href="{{url_for('.calendar_month', year=prev[0], month=prev[1])}}">&laquo;</a>
     {{monthname}} {{year}}
     <a class="btn btn-light btn-lg p-2" href="{{url_for('.calendar_month', year=next[0], month=next[1])}}">&raquo;</a>
-<!--    <a class="btn btn-light btn-lg p-2" data-toggle="modal" data-target="#SuggestModal">-->
-<!--        <i class="fa fa-lightbulb"></i>-->
-<!--    </a>-->
 </h2>
 
 <div class="table-responsive">
@@ -38,6 +35,9 @@
                     <ul class="list-group list-group-flush">
                         {% for meal in history[day] %}
                         <li class="list-group-item p-1"><small>{{mealnames[meal]}}</small></li>
+                        {% endfor %}
+                        {% for sugg in suggestions[day] %}
+                        <li class="list-group-item p-1"><small><em><b>{{mealnames[sugg]}}</b></em></small></li>
                         {% endfor %}
                     </ul>
                 </div>

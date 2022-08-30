@@ -12,12 +12,17 @@ def get_suggestion(date_, time_):
     return Suggestion.query.filter(and_(Suggestion.date == date_, Suggestion.time == time_)).one()
 
 
+def get_suggestions(from_date, to_date):
+    return Suggestion.query.filter(Suggestion.date.between(from_date, to_date)).all()
+
+
 def get_or_create_suggestions(from_date, duration):
-    suggestions_res = Suggestion.query.filter(Suggestion.date >= from_date).all()
-    retrieved_days = len(suggestions_res)//2
+    to_date = from_date + timedelta(days=duration)
+    suggestions_res = get_suggestions(from_date, to_date)
+    retrieved_days = len(suggestions_res) // 2
     if retrieved_days >= duration:
         # we retrieved everything we want from DB, we're done here ...
-        return suggestions_res[:duration*2]
+        return suggestions_res[:duration * 2]
 
     # ... otherwise, we have a partial result from DB. We must complete that with new suggestions.
     # replay the suggestions retrieved: prepare a planner, feed it the suggestions retrieved (if any)
@@ -29,19 +34,22 @@ def get_or_create_suggestions(from_date, duration):
     for d, lunch, dinner in zip(sugg_dates, sugg_iter, sugg_iter):
         planner.process_dated_meals(d, [lunch, dinner])
     # for the rest of the duration, we ask for suggestions
-    for d in date_range(from_date + timedelta(days=retrieved_days), duration-retrieved_days):
+    for d in date_range(from_date + timedelta(days=retrieved_days), duration - retrieved_days):
         for t in MealTime:
             eligible, suggested_m_id = suggest_meal(d, t, planner)
             planner.process_dated_meals(d, [suggested_m_id])
-            suggestion = Suggestion(date=d, time=t, eligible_meals=";".join([m.id for m in eligible]), suggestion=suggested_m_id)
+            suggestion = Suggestion(date=d, time=t, eligible_meals=";".join([m.id for m in eligible]),
+                                    suggestion=suggested_m_id)
             suggestions_res.append(suggestion)
             db.session.add(suggestion)
     db.session.commit()
     return suggestions_res
 
+
 def update_suggestion(date_, time_, new_meal_id):
     Suggestion.query.filter_by(date=date_, time=time_).update({Suggestion.suggestion: new_meal_id})
     db.session.commit()
+
 
 def recreate_suggestion(from_date, duration):
     Suggestion.query.filter(Suggestion.date >= from_date).delete()
