@@ -7,9 +7,10 @@ from . import planner, date_range
 from .forms import ModifySuggestionForm
 
 from .meal_planning import MealPlanner
-from .models import MealTime
+from .models import MealTime, Suggestion
 from .params import get_params
 from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion, update_suggestion
+from .. import db
 from ..meals.meal_dao import get_meals, RecipesDB, get_ingredient_per_category
 
 weekdays = list(calendar.day_name)
@@ -23,8 +24,9 @@ def suggest():
     suggestionform = ModifySuggestionForm()
     suggestions = get_or_create_suggestions(now, duration)
     print([(s.date, s.time, s.suggestion) for s in suggestions])
-    lunches = [s.suggestion for s in suggestions[::2]]
-    dinners = [s.suggestion for s in suggestions[1::2]]
+    lunches = [(s.suggestion, s.committed) for s in suggestions[::2]]
+    dinners = [(s.suggestion, s.committed) for s in suggestions[1::2]]
+
     planner = MealPlanner(now)
     mealnames = {k: v.name for k, v in planner.meals_dict.items()}
     dates = [(weekdays_abbr[calendar.weekday(d.year, d.month, d.day)], d) for d in date_range(now, duration)]
@@ -58,6 +60,18 @@ def modify_suggestion():
         print("### modify_suggestion: ", suggestionform.errors)
     return redirect(url_for(".suggest"))
 
+
+@planner.route("/suggest/commit")
+def commit_suggestion():
+    d = date.fromisoformat(request.args['date'])
+    print(request.args)
+    lunch_or_dinner = MealTime.lunch if request.args['time'] == "L" else MealTime.dinner
+    print("commit_suggestion: ", d, lunch_or_dinner)
+    Suggestion.query.filter_by(date=d, time=lunch_or_dinner).update({Suggestion.committed: True})
+    db.session.commit()
+    return redirect(url_for(".suggest"))
+
+
 @planner.route("/suggest/redo")
 def redo_suggest():
     now = date.today()
@@ -75,17 +89,19 @@ def shoppinglist():
     ingr_list = recipesDB.ingredients_for_meals([s.suggestion for s in suggestions])
     ingredient_grouped = defaultdict(list)
     ingredient_per_category = get_ingredient_per_category()
-    for k,v in ingr_list.items():
-        ingredient_grouped[ingredient_per_category[k].category].append((k,v))
+    for k, v in ingr_list.items():
+        ingredient_grouped[ingredient_per_category[k].category].append((k, v))
     print(ingredient_grouped)
     print(" -*- ", ingr_list)
     return render_template("shoppinglist.html", ingredients_grouped=ingredient_grouped)
+
 
 @planner.route("/suggest/params")
 def params():
     parameters = get_params()
     print(parameters)
     return render_template("params.html", days=weekdays, parameters=parameters)
+
 
 @planner.route("/js/planner-script")
 def planner_script():

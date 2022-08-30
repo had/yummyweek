@@ -25,12 +25,26 @@
     <tr>
         <th scope="row text-center">{{day}} {{date}}</th>
         <td>
-            {{mealnames[suggested_lunches[loop.index0]]}}
-            <a type="button" class="btn btn-sm"  data-toggle="modal" data-target="#ModifySuggestionModal" data-date="{{date}}/L"> <i class="fas fa-edit"></i> </a>
+            {% set lunch, l_committed = suggested_lunches[loop.index0] %}
+            {% if l_committed %}
+                <span class="badge badge-success">{{mealnames[lunch]}}</span>
+                <i class="fa-regular fa-calendar-check"></i>
+            {% else %}
+                {{mealnames[lunch]}}
+                <a type="button" class="btn btn-sm"  data-toggle="modal" data-target="#ModifySuggestionModal" data-date="{{date}}/L"> <i class="fas fa-edit"></i> </a>
+                <a type="button" class="btn btn-sm"  href="{{url_for('.commit_suggestion', date=date, time='L')}}"> <i class="fa fa-calendar-plus"></i> </a>
+            {% endif %}
         </td>
         <td>
-            {{mealnames[suggested_dinners[loop.index0]]}}
-            <a type="button" class="btn btn-sm"  data-toggle="modal" data-target="#ModifySuggestionModal" data-date="{{date}}/D"> <i class="fas fa-edit"></i> </a>
+            {% set dinner, d_committed = suggested_dinners[loop.index0] %}
+            {% if d_committed %}
+                <span class="badge badge-pill badge-success">{{mealnames[dinner]}}</span>
+                <i class="fa-regular fa-calendar-check"></i>
+            {% else %}
+                {{mealnames[dinner]}}
+                <a type="button" class="btn btn-sm"  data-toggle="modal" data-target="#ModifySuggestionModal" data-date="{{date}}/D"> <i class="fas fa-edit"></i> </a>
+                <a type="button" class="btn btn-sm"  href="{{url_for('.commit_suggestion', date=date, time='D')}}"> <i class="fa fa-calendar-plus"></i> </a>
+            {% endif %}
         </td>
     </tr>
 {% endfor %}

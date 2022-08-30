@@ -175,7 +175,3 @@ class RecipesDB:
         print(processed_ingr)
         return processed_ingr
 
-    def ingredients_for_meals_groupby_(self, meals):
-
-        ingredient_per_category = get_ingredient_per_category()
-        return groupby(sorted(processed_ingr), key=lambda i: ingredient_per_category[c].category)
