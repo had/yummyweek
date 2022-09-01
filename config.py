@@ -13,6 +13,8 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "yummyweek-dev.sqlite")
+    SMTP_SERVER = "smtp.gmail.com"
+    SMTP_PORT = 465
 
 class TestingConfig(Config):
     DEBUG = True

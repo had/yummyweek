@@ -2,7 +2,12 @@
 
 {% block page_content %}
 
-<h1 class="display-4">Shopping list</h1>
+<div class="pb-3 d-flex justify-content-between">
+    <h4>Shopping list</h4>
+    <div>
+        <a type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#EmailShoppingListModal"> Send &nbsp <i class="fa fa-envelope"></i> </a>
+    </div>
+</div>
 
 <ul class="list-group list-group-flush pb-5">
 {% for cat, ingredients in ingredients_grouped.items() %}
@@ -12,5 +17,24 @@
 {% endfor %}
 {% endfor %}
 </ul>
+
+{% from 'bootstrap4/form.html' import render_form %}
+<div class="modal" id="EmailShoppingListModal" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send shopping list</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{url_for('.send_shoppinglist')}}">
+                    {{render_form(email_form)}}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
 {% block page_content %}
-<h2 class="text-center">
+<h1 class="text-center">
     <a class="btn btn-light btn-lg p-2" href="{{url_for('.calendar_today')}}">⊙</a>
     <a class="btn btn-light btn-lg p-2" href="{{url_for('.calendar_month', year=prev[0], month=prev[1])}}">&laquo;</a>
     {{monthname}} {{year}}
     <a class="btn btn-light btn-lg p-2" href="{{url_for('.calendar_month', year=next[0], month=next[1])}}">&raquo;</a>
-</h2>
+</h1>
 
 <div class="table-responsive">
 
@@ -52,7 +52,7 @@
 </table>
 </div>
 
-{% import 'bootstrap4/form.html' as wtf %}
+{% from 'bootstrap4/form.html' import render_field %}
 
 <div class="modal" id="AddMealModal" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -66,8 +66,8 @@
             <div class="modal-body">
                 <form method="POST" action="{{url_for('.add_meal', year=year, month=month)}}">
                     {{ mealform.hidden_tag() }}
-                    {{ mealform.meals(class="form-select meals-select2") }}
-                    {{ mealform.submit() }}
+                    {{ render_field(mealform.meals, class="form-select meals-select2") }}
+                    {{ render_field(mealform.submit) }}
                 </form>
                 <div class="card mt-3" id="sugg-panel">
                     <div class="card-header">

@@ -1,6 +1,7 @@
 flask
 bootstrap-flask
 flask-wtf
+email_validator
 flask-sqlalchemy
 flask-migrate
 python-dateutil

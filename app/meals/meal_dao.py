@@ -145,7 +145,6 @@ class RecipesDB:
     def ingredients_for_meals(self, meals):
         meals_or_elements = [e for m in meals for e in m.split('+')]
         ingredients = [i for e in meals_or_elements for i in self.recipes_ingr.get(e, [])]
-        print(ingredients)
         uncountable_ingr, countable_ingr = partition(lambda i: "*" in i,
                                                      [ingr for e in meals_or_elements for ingr in
                                                       self.recipes_ingr.get(e, [])])
@@ -165,13 +164,10 @@ class RecipesDB:
                     # add fake unit when none is provided
                     parsed_counters.append(["", c])
             aggregated_counters = []
-            print("^^^ ", ingr, " // ", parsed_counters)
             for key, pc_gr in groupby(sorted(parsed_counters), key=lambda c: c[0]):
                 pc = [c[1] for c in pc_gr]
                 aggreg = sum(map(int, pc))
-                print(ingr, aggreg, key)
                 aggregated_counters.append(f"{aggreg} {key}")
             processed_ingr[ingr] = ' and '.join(aggregated_counters).strip()
-        print(processed_ingr)
         return processed_ingr
 

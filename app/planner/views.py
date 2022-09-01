@@ -1,17 +1,21 @@
 import calendar
-from collections import defaultdict
+import os
+import smtplib
+import ssl
+from pprint import pformat
 
-from flask import render_template, redirect, url_for, jsonify, request
+from flask import render_template, redirect, url_for, jsonify, request, current_app
 from datetime import date
 from . import planner, date_range
-from .forms import ModifySuggestionForm
+from .forms import ModifySuggestionForm, EmailForm
 
 from .meal_planning import MealPlanner
 from .models import MealTime, Suggestion
 from .params import get_params
+from .shopping import get_categorized_shoppinglist
 from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion, update_suggestion
 from .. import db
-from ..meals.meal_dao import get_meals, RecipesDB, get_ingredient_per_category
+from ..meals.meal_dao import get_meals
 
 weekdays = list(calendar.day_name)
 weekdays_abbr = list(calendar.day_abbr)
@@ -82,18 +86,31 @@ def redo_suggest():
 
 @planner.route("/suggest/shoppinglist")
 def shoppinglist():
+    email_form = EmailForm()
     now = date.today()
     duration = 7
-    suggestions = get_or_create_suggestions(now, duration)
-    recipesDB = RecipesDB()
-    ingr_list = recipesDB.ingredients_for_meals([s.suggestion for s in suggestions])
-    ingredient_grouped = defaultdict(list)
-    ingredient_per_category = get_ingredient_per_category()
-    for k, v in ingr_list.items():
-        ingredient_grouped[ingredient_per_category[k].category].append((k, v))
-    print(ingredient_grouped)
-    print(" -*- ", ingr_list)
-    return render_template("shoppinglist.html", ingredients_grouped=ingredient_grouped)
+    ingredients_grouped = get_categorized_shoppinglist(now, duration)
+    return render_template("shoppinglist.html", ingredients_grouped=ingredients_grouped, email_form=email_form)
+
+
+@planner.route("/suggest/shoppinglist/send", methods=["POST"])
+def send_shoppinglist():
+    email_form = EmailForm()
+    if email_form.validate_on_submit():
+        print("Will send email to ", email_form.email.data)
+
+        context = ssl.create_default_context()
+        smtp_srv = current_app.config['SMTP_SERVER']
+        smtp_port = current_app.config['SMTP_PORT']
+        yw_email = os.environ.get("YW_EMAIL")
+        yw_email_pw = os.environ.get("YW_EMAIL_PW")
+        with smtplib.SMTP_SSL(smtp_srv, smtp_port, context=context) as server:
+            server.login(yw_email, yw_email_pw)
+            now = date.today()
+            duration = 7
+            msg = pformat(get_categorized_shoppinglist(now, duration))
+            server.sendmail(yw_email, email_form.email.data, msg=msg)
+    return redirect(url_for('.shoppinglist'))
 
 
 @planner.route("/suggest/params")
