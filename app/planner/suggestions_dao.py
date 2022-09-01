@@ -15,6 +15,8 @@ def get_suggestion(date_, time_):
 def get_suggestions(from_date, to_date):
     return Suggestion.query.filter(Suggestion.date.between(from_date, to_date)).all()
 
+def get_committed_suggestions(date_):
+    return [s for s in get_suggestions(date_, date_) if s.committed]
 
 def get_or_create_suggestions(from_date, duration):
     to_date = from_date + timedelta(days=duration)
@@ -45,6 +47,10 @@ def get_or_create_suggestions(from_date, duration):
     db.session.commit()
     return suggestions_res
 
+
+def remove_suggestions(date_):
+    Suggestion.query.filter(Suggestion.date == date_).delete()
+    db.session.commit()
 
 def update_suggestion(date_, time_, new_meal_id):
     Suggestion.query.filter_by(date=date_, time=time_).update({Suggestion.suggestion: new_meal_id})

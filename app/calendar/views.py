@@ -9,7 +9,7 @@ from datetime import date
 import calendar as py_cal
 from .meal_history import get_history, set_history
 from ..meals.meal_dao import get_meals, get_meal_elements
-from ..planner.suggestions_dao import get_suggestions
+from ..planner.suggestions_dao import get_suggestions, get_committed_suggestions, remove_suggestions
 
 weekdays = list(py_cal.day_name)
 month_names = list(py_cal.month_name)
@@ -53,6 +53,8 @@ def add_meal(year, month):
     if mealform.validate_on_submit():
         day = int(mealform.day.data)
         set_history(year, month, day, mealform.meals.data)
+        if mealform.remove_suggestions.data:
+            remove_suggestions(date(year, month, day))
     else:
         print("### add_meal: ", mealform.errors.values())
     return redirect(url_for('.calendar_month', year=year, month=month))
@@ -61,6 +63,14 @@ def add_meal(year, month):
 def selected_meals(year, month):
     day = int(request.form['day'])
     return jsonify(get_history(year, month).get(date(year, month, day)))
+
+@calendar.route("/calendar/<int:year>/<int:month>/suggestion", methods=["POST"])
+def suggested_meals(year, month):
+    day = int(request.form['day'])
+    d = date(year, month, day)
+    meal_names = {m_id: meal.name for m_id, meal in get_meals().items()}
+    sugg = {s.suggestion: meal_names[s.suggestion] for s in get_committed_suggestions(d)}
+    return jsonify(sugg)
 
 @calendar.route("/js/calendar-script/<year>/<month>")
 def calendar_script(year, month):

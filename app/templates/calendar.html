@@ -37,7 +37,7 @@
                         <li class="list-group-item p-1"><small>{{mealnames[meal]}}</small></li>
                         {% endfor %}
                         {% for sugg in suggestions[day] %}
-                        <li class="list-group-item p-1"><small><em><b>{{mealnames[sugg]}}</b></em></small></li>
+                        <li class="list-group-item p-1">Ⓢ <small><em><b>{{mealnames[sugg]}}</b></em></small></li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -69,6 +69,17 @@
                     {{ mealform.meals(class="form-select meals-select2") }}
                     {{ mealform.submit() }}
                 </form>
+                <div class="card mt-3" id="sugg-panel">
+                    <div class="card-header">
+                        <b>Suggestions</b>
+                        <span class="badge badge-pill badge-success" id="use_sugg">Use <i class="fa-solid fa-arrows-up-to-line"></i></span>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush" id="suggestions">
+
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
