@@ -8,19 +8,28 @@ $('#ModifySuggestionModal').on('show.bs.modal', function (event) {
         data: {'date': date}
       }).then(function (data) {
         // re-init select2
+        choices = Object.entries(data.filtered).map(([k,v]) => {
+            return {id: k, text: v}
+        })
+        others = Object.entries(data.other).map(([k,v]) => {
+            return {id: k, text: v}
+        })
+        console.log(choices)
         $('.suggestion-select2').html('').select2(
             {
                 dropdownAutoWidth : true,
                 width : '100%',
-                dropdownParent: $('#ModifySuggestionModal')
+                dropdownParent: $('#ModifySuggestionModal'),
+                data: [{
+                        text: "Filtered",
+                        children: choices
+                    },
+                    {
+                        text: "All",
+                        children: others
+                }]
             }
         );
-        choices = data.choices
-        console.log(choices);
-        for (var key in choices) {
-            var newOption = new Option(choices[key], key, false, false);
-            $('.suggestion-select2').append(newOption).trigger('change');
-        }
         $('.suggestion-select2').val(data.suggestion).trigger('change');
       })
 

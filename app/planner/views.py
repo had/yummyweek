@@ -47,9 +47,10 @@ def get_choices():
     lunch_or_dinner = MealTime.lunch if form_data[1] == "L" else MealTime.dinner
     suggestion = get_suggestion(d, lunch_or_dinner)
     meal_dict = get_meals()
-    choices = suggestion.eligible_meals.split(";")
-    print("GET_CHOICES: ", d, lunch_or_dinner, choices)
-    return jsonify({"choices": {m: meal_dict[m].name for m in choices}, "suggestion": suggestion.suggestion})
+    eligible_meals = suggestion.eligible_meals.split(";")
+    filtered = {m: meal_dict[m].name for m in eligible_meals}
+    other = {m_id: m.name for m_id, m in meal_dict.items() if m_id not in eligible_meals}
+    return jsonify({"filtered":  filtered, "other": other, "suggestion": suggestion.suggestion})
 
 
 @planner.route("/suggest/modify", methods=["POST"])
