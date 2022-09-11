@@ -22,7 +22,6 @@ $('#ModifySuggestionModal').on('show.bs.modal', function (event) {
             $('.suggestion-select2').append(newOption).trigger('change');
         }
         $('.suggestion-select2').val(data.suggestion).trigger('change');
-        console.log($('.suggestion-select2'))
       })
 
 })

@@ -104,11 +104,14 @@ def send_shoppinglist():
         smtp_port = current_app.config['SMTP_PORT']
         yw_email = os.environ.get("YW_EMAIL")
         yw_email_pw = os.environ.get("YW_EMAIL_PW")
+        now = date.today()
+        duration = 7
+        ingredients_grouped = get_categorized_shoppinglist(now, duration)
+        msg = render_template("ingredients_by_category.html", ingredients_grouped=ingredients_grouped)
+        print("Sending the following message:")
+        print(msg)
         with smtplib.SMTP_SSL(smtp_srv, smtp_port, context=context) as server:
             server.login(yw_email, yw_email_pw)
-            now = date.today()
-            duration = 7
-            msg = pformat(get_categorized_shoppinglist(now, duration))
             server.sendmail(yw_email, email_form.email.data, msg=msg)
     return redirect(url_for('.shoppinglist'))
 

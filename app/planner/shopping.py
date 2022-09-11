@@ -13,5 +13,4 @@ def get_categorized_shoppinglist(date_, duration):
     ingredient_per_category = get_ingredient_per_category()
     for k, v in ingr_list.items():
         ingredient_grouped[ingredient_per_category[k].category].append((k, v))
-    pprint(ingredient_grouped)
     return ingredient_grouped

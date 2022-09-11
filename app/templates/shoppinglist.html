@@ -9,14 +9,7 @@
     </div>
 </div>
 
-<ul class="list-group list-group-flush pb-5">
-{% for cat, ingredients in ingredients_grouped.items() %}
-    <li class="list-group-item list-group-item-success">{{cat}}</li>
-{% for item, qty in ingredients %}
-    <li class="list-group-item">{{item}}: {{qty}}</li>
-{% endfor %}
-{% endfor %}
-</ul>
+{% include 'ingredients_by_category.html' %}
 
 {% from 'bootstrap4/form.html' import render_form %}
 <div class="modal" id="EmailShoppingListModal" role="dialog" aria-hidden="true">
