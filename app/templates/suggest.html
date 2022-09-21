@@ -11,7 +11,7 @@
     </div>
 </div>
 
-<div class="table-responsive-sm">
+<div class="table-responsive">
 <table class="table table-hover">
   <thead class="thead-light text-center">
     <tr>
@@ -25,26 +25,46 @@
     <tr>
         <th scope="row text-center">{{day}} {{date}}</th>
         <td>
+            <div class="card">
             {% set lunch, l_committed = suggested_lunches[loop.index0] %}
             {% if l_committed %}
-                <span class="badge badge-pill badge-success">{{mealnames[lunch]}}</span>
-                <i class="fa-regular fa-calendar-check"></i>
+                <div class="card-header text-center text-nowrap bg-success">{{mealnames[lunch]}}</div>
+                <div class="card-body">
+                    <a type="button" class="btn btn-light"  href="{{url_for('.uncommit_suggestion', date=date, time='L')}}"> <i class="fa-regular fa-calendar-check"></i> Remove</a>
+                </div>
             {% else %}
-                {{mealnames[lunch]}}
-                <a type="button" class="btn btn-sm"  data-toggle="modal" data-target="#ModifySuggestionModal" data-date="{{date}}/L"> <i class="fas fa-edit"></i> </a>
-                <a type="button" class="btn btn-sm"  href="{{url_for('.commit_suggestion', date=date, time='L')}}"> <i class="fa fa-calendar-plus"></i> </a>
+                <div class="card-header text-nowrap text-center">
+                    {{mealnames[lunch]}}
+                    <a type="button" class="btn btn-sm"  data-toggle="modal" data-target="#ModifySuggestionModal" data-date="{{date}}/L"><i class="fas fa-edit"></i></a>
+                </div>
+                <div class="card-body">
+                    <a style="height: 38px;" type="button" class="btn btn-light"  href="{{url_for('.commit_suggestion', date=date, time='L')}}"><i class="fa fa-calendar-plus"></i> Add</a>
+                    <div style="height: 38px;" class="btn btn-light"><img src="{{ url_for('static', filename='knife-icon.svg') }}" height="20"></img> <b>{{prep_times[lunch]}}mn</b></div>
+                    <div style="height: 38px;" class="btn btn-light"><img src="{{ url_for('static', filename='non-stick-icon.svg') }}" height="12" ></img> <b>{{cooking_times[lunch]}}mn</b></div>
+                </div>
             {% endif %}
+            </div>
         </td>
         <td>
+            <div class="card">
             {% set dinner, d_committed = suggested_dinners[loop.index0] %}
             {% if d_committed %}
-                <span class="badge badge-pill badge-success">{{mealnames[dinner]}}</span>
-                <i class="fa-regular fa-calendar-check"></i>
+                <div class="card-header text-center text-nowrap bg-success">{{mealnames[dinner]}}</div>
+                <div class="card-body">
+                    <a type="button" class="btn btn-light"  href="{{url_for('.uncommit_suggestion', date=date, time='D')}}"> <i class="fa-regular fa-calendar-check"></i> Remove</a>
+                </div>
             {% else %}
-                {{mealnames[dinner]}}
-                <a type="button" class="btn btn-sm"  data-toggle="modal" data-target="#ModifySuggestionModal" data-date="{{date}}/D"> <i class="fas fa-edit"></i> </a>
-                <a type="button" class="btn btn-sm"  href="{{url_for('.commit_suggestion', date=date, time='D')}}"> <i class="fa fa-calendar-plus"></i> </a>
+                <div class="card-header text-nowrap text-center">
+                    {{mealnames[dinner]}}
+                    <a type="button" class="btn btn-sm"  data-toggle="modal" data-target="#ModifySuggestionModal" data-date="{{date}}/D"><i class="fas fa-edit"></i></a>
+                </div>
+                <div  class="card-body">
+                        <a style="height: 38px;" type="button" class="btn btn-light"  href="{{url_for('.commit_suggestion', date=date, time='D')}}"><i class="fa fa-calendar-plus"></i> Add</a>
+                        <div style="height: 38px;" class="btn btn-light"><img src="{{ url_for('static', filename='cutting-board-icon.svg') }}" height="20"></img> <b>{{prep_times[dinner]}}mn</b></div>
+                        <div style="height: 38px;" class="btn btn-light"><img src="{{ url_for('static', filename='non-stick-icon.svg') }}"  height="12" ></img> <b>{{cooking_times[dinner]}}mn</b></div>
+                </div>
             {% endif %}
+            </div>
         </td>
     </tr>
 {% endfor %}

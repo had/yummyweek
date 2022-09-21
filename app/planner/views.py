@@ -27,15 +27,17 @@ def suggest():
     duration = 7
     suggestionform = ModifySuggestionForm()
     suggestions = get_or_create_suggestions(now, duration)
-    print([(s.date, s.time, s.suggestion) for s in suggestions])
     lunches = [(s.suggestion, s.committed) for s in suggestions[::2]]
     dinners = [(s.suggestion, s.committed) for s in suggestions[1::2]]
 
     planner = MealPlanner(now)
     mealnames = {k: v.name for k, v in planner.meals_dict.items()}
+    prep_times = {k: round(v.prep_time_m) for k, v in planner.meals_dict.items()}
+    cooking_times = {k: round(v.cooking_time_m) for k, v in planner.meals_dict.items()}
     dates = [(weekdays_abbr[calendar.weekday(d.year, d.month, d.day)], d) for d in date_range(now, duration)]
     return render_template("suggest.html", start_date=str(now), nb_days=duration, mealnames=mealnames,
                            suggestionform=suggestionform, dates=dates,
+                           prep_times=prep_times, cooking_times=cooking_times,
                            suggested_lunches=lunches, suggested_dinners=dinners)
 
 
@@ -50,7 +52,7 @@ def get_choices():
     eligible_meals = suggestion.eligible_meals.split(";")
     filtered = {m: meal_dict[m].name for m in eligible_meals}
     other = {m_id: m.name for m_id, m in meal_dict.items() if m_id not in eligible_meals}
-    return jsonify({"filtered":  filtered, "other": other, "suggestion": suggestion.suggestion})
+    return jsonify({"filtered": filtered, "other": other, "suggestion": suggestion.suggestion})
 
 
 @planner.route("/suggest/modify", methods=["POST"])
@@ -77,11 +79,23 @@ def commit_suggestion():
     return redirect(url_for(".suggest"))
 
 
+@planner.route("/suggest/uncommit")
+def uncommit_suggestion():
+    d = date.fromisoformat(request.args['date'])
+    print(request.args)
+    lunch_or_dinner = MealTime.lunch if request.args['time'] == "L" else MealTime.dinner
+    print("uncommit_suggestion: ", d, lunch_or_dinner)
+    Suggestion.query.filter_by(date=d, time=lunch_or_dinner).update({Suggestion.committed: False})
+    db.session.commit()
+    return redirect(url_for(".suggest"))
+
+
 @planner.route("/suggest/redo")
 def redo_suggest():
     now = date.today()
     duration = 7
-    _ = recreate_suggestion(now, duration)
+    sugg = recreate_suggestion(now, duration)
+    print("RECREATE_SUGG ", [(s.date, s.time, s.suggestion) for s in sugg])
     return redirect(url_for('.suggest'))
 
 
