@@ -1,5 +1,6 @@
 from .. import db
 from enum import Enum
+from sqlalchemy.sql.expression import false
 
 
 class MealTime(Enum):
@@ -15,4 +16,4 @@ class Suggestion(db.Model):
     time = db.Column(db.Enum(MealTime))
     eligible_meals = db.Column(db.String)  # eligible meals are semi-column separated meal IDs
     suggestion = db.Column(db.String)   # suggestion is a single meal ID
-    committed = db.Column(db.Boolean)
+    committed = db.Column(db.Boolean, default=False, server_default=false())

@@ -1,6 +1,7 @@
 from datetime import timedelta
+from itertools import product
 
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 
 from . import date_range
 from .models import Suggestion, MealTime
@@ -21,31 +22,26 @@ def get_committed_suggestions(date_):
 def get_or_create_suggestions(from_date, duration):
     to_date = from_date + timedelta(days=duration)
     suggestions_res = get_suggestions(from_date, to_date)
-    retrieved_days = len(suggestions_res) // 2
-    if retrieved_days >= duration:
-        # we retrieved everything we want from DB, we're done here ...
-        return suggestions_res[:duration * 2]
 
     # ... otherwise, we have a partial result from DB. We must complete that with new suggestions.
     # replay the suggestions retrieved: prepare a planner, feed it the suggestions retrieved (if any)
+    sugg_dict = {(s.date,s.time): s for s in suggestions_res}
+    result = []
     planner = MealPlanner(from_date)
-    sugg_dates = date_range(from_date, retrieved_days)
-    sugg_iter = iter([s.suggestion for s in suggestions_res])
-    # the following zip takes suggestions 2 by 2 (to take lunch and dinner together), see the Tips and tricks paragraph
-    # of https://docs.python.org/3/library/functions.html#zip
-    for d, lunch, dinner in zip(sugg_dates, sugg_iter, sugg_iter):
-        planner.process_dated_meals(d, [lunch, dinner])
-    # for the rest of the duration, we ask for suggestions
-    for d in date_range(from_date + timedelta(days=retrieved_days), duration - retrieved_days):
-        for t in MealTime:
-            eligible, suggested_m_id = suggest_meal(d, t, planner)
-            planner.process_dated_meals(d, [suggested_m_id])
-            suggestion = Suggestion(date=d, time=t, eligible_meals=";".join([m.id for m in eligible]),
+    for date_, time_ in product(date_range(from_date, duration+1), [MealTime.lunch, MealTime.dinner]):
+        if (date_, time_) in sugg_dict:
+            s = sugg_dict[(date_,time_)]
+            planner.process_dated_meals(date_, [s.suggestion])
+            result.append(s)
+        else:
+            eligible, suggested_m_id = suggest_meal(date_, time_, planner)
+            planner.process_dated_meals(date_, [suggested_m_id])
+            suggestion = Suggestion(date=date_, time=time_, eligible_meals=";".join([m.id for m in eligible]),
                                     suggestion=suggested_m_id)
-            suggestions_res.append(suggestion)
             db.session.add(suggestion)
+            result.append(suggestion)
     db.session.commit()
-    return suggestions_res
+    return result
 
 
 def remove_suggestions(date_):
@@ -58,5 +54,7 @@ def update_suggestion(date_, time_, new_meal_id):
 
 
 def recreate_suggestion(from_date, duration):
-    Suggestion.query.filter(Suggestion.date >= from_date).delete()
+    sugg = Suggestion.query.filter(and_(Suggestion.date >= from_date, or_(Suggestion.committed == None, Suggestion.committed == False))).all()
+    print("RETRY SUGGESTIONS: ", [(s.suggestion, s.committed) for s in sugg])
+    Suggestion.query.filter(and_(Suggestion.date >= from_date, or_(Suggestion.committed == None, Suggestion.committed == False))).delete()
     return get_or_create_suggestions(from_date, duration)
