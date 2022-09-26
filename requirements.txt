@@ -1,13 +1,1 @@
-flask
-bootstrap-flask
-flask-wtf
-email_validator
-flask-sqlalchemy
-flask-migrate
-python-dateutil
-sqlalchemy
-more-itertools
-# these 2 are for reading mock data files, they can be commented out in DB-only contexts
-# TODO: we could actually do without pandas completely, relying only on openpyxl
-pandas
-openpyxl
+-r requirements-common.txt
