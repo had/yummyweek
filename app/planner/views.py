@@ -25,7 +25,7 @@ weekdays_abbr = list(calendar.day_abbr)
 def suggest():
     now = date.today()
     duration = 7
-    suggestionform = ModifySuggestionForm()
+    suggestion_form = ModifySuggestionForm()
     suggestions = get_or_create_suggestions(now, duration)
     lunches = [(s.suggestion, s.committed) for s in suggestions[::2]]
     dinners = [(s.suggestion, s.committed) for s in suggestions[1::2]]
@@ -36,7 +36,7 @@ def suggest():
     cooking_times = {k: round(v.cooking_time_m) for k, v in planner.meals_dict.items()}
     dates = [(weekdays_abbr[calendar.weekday(d.year, d.month, d.day)], d) for d in date_range(now, duration)]
     return render_template("suggest.html", start_date=str(now), nb_days=duration, mealnames=mealnames,
-                           suggestionform=suggestionform, dates=dates,
+                           suggestion_form=suggestion_form, dates=dates,
                            prep_times=prep_times, cooking_times=cooking_times,
                            suggested_lunches=lunches, suggested_dinners=dinners)
 
@@ -57,14 +57,14 @@ def get_choices():
 
 @planner.route("/suggest/modify", methods=["POST"])
 def modify_suggestion():
-    suggestionform = ModifySuggestionForm()
-    if suggestionform.submit():
-        form_data = suggestionform.date.data.split("/")
+    suggestion_form = ModifySuggestionForm()
+    if suggestion_form.submit():
+        form_data = suggestion_form.date.data.split("/")
         d = date.fromisoformat(form_data[0])
         lunch_or_dinner = MealTime.lunch if form_data[1] == "L" else MealTime.dinner
-        update_suggestion(d, lunch_or_dinner, suggestionform.suggestion.data)
+        update_suggestion(d, lunch_or_dinner, suggestion_form.suggestion.data)
     else:
-        print("### modify_suggestion: ", suggestionform.errors)
+        print("### modify_suggestion: ", suggestion_form.errors)
     return redirect(url_for(".suggest"))
 
 

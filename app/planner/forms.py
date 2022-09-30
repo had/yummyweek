@@ -7,6 +7,7 @@ class ModifySuggestionForm(FlaskForm):
     suggestion = SelectField("Choose another suggestion", choices=[])
     submit = SubmitField("Confirm")
 
+
 class EmailForm(FlaskForm):
     email = EmailField('Email address', [validators.DataRequired(), validators.Email()])
     submit = SubmitField("Send")

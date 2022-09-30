@@ -84,9 +84,9 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="{{url_for('.modify_suggestion')}}">
-                    {{ suggestionform.hidden_tag() }}
-                    {{ render_field(suggestionform.suggestion, class="form-select suggestion-select2") }}
-                    {{ render_field(suggestionform.submit) }}
+                    {{ suggestion_form.hidden_tag() }}
+                    {{ render_field(suggestion_form.suggestion, class="form-select suggestion-select2") }}
+                    {{ render_field(suggestion_form.submit) }}
                 </form>
             </div>
         </div>

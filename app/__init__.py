@@ -19,6 +19,9 @@ def create_app(config_name):
     from .main import main as main_bp
     app.register_blueprint(main_bp)
 
+    from .users import users as users_bp
+    app.register_blueprint(users_bp)
+
     from .meals import meals as meals_bp
     app.register_blueprint(meals_bp)
 
