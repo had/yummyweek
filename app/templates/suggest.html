@@ -39,7 +39,7 @@
                 </div>
                 <div class="card-body">
                     <a style="height: 38px;" type="button" class="btn btn-light"  href="{{url_for('.commit_suggestion', date=date, time='L')}}"><i class="fa fa-calendar-plus"></i> Add</a>
-                    <div style="height: 38px;" class="btn btn-light"><img src="{{ url_for('static', filename='knife-icon.svg') }}" height="20"></img> <b>{{prep_times[lunch]}}mn</b></div>
+                    <div style="height: 38px;" class="btn btn-light"><img src="{{ url_for('static', filename='cutting-board-icon.svg') }}" height="20"></img> <b>{{prep_times[lunch]}}mn</b></div>
                     <div style="height: 38px;" class="btn btn-light"><img src="{{ url_for('static', filename='non-stick-icon.svg') }}" height="12" ></img> <b>{{cooking_times[lunch]}}mn</b></div>
                 </div>
             {% endif %}
@@ -54,7 +54,8 @@
                     <a type="button" class="btn btn-light"  href="{{url_for('.uncommit_suggestion', date=date, time='D')}}"> <i class="fa-regular fa-calendar-check"></i> Remove</a>
                 </div>
             {% else %}
-                <div class="card-header text-nowrap text-center">
+<!--                <div class="card-header text-nowrap text-center">-->
+                <div class="card-header  text-center">
                     {{mealnames[dinner]}}
                     <a type="button" class="btn btn-sm"  data-toggle="modal" data-target="#ModifySuggestionModal" data-date="{{date}}/D"><i class="fas fa-edit"></i></a>
                 </div>

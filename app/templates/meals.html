@@ -6,8 +6,9 @@
 
 {% for meal in meals %}
 <div class="card">
-    <h3 class="card-header text-center">{{ meal.name }} </h3>
     <div class="card-body">
+        <h5 class="card-title">{{ meal.name }} </h5>
+        <hr/>
         <p class="card-text">Preparation ({{meal.prep_time_m}}): {{meal.prep_notes}} </p>
         <p class="card-text">Cooking ({{meal.cooking_time_m}}): {{meal.cooking_notes}} </p>
     </div>

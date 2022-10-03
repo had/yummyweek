@@ -3,7 +3,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    BOOTSTRAP_BOOTSWATCH_THEME = "litera"
+    BOOTSTRAP_BOOTSWATCH_THEME = "united"
     SECRET_KEY = os.environ.get('SECRET_KEY') or "t0p.5ecr3t"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
