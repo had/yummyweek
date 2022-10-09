@@ -1,4 +1,4 @@
-from .models import Meal, MealType, MealElement, Recipe, Ingredient
+from .models import Meal, MealType, MealElement, Recipe, Ingredient, Dish
 import os
 from itertools import groupby, product
 from more_itertools import partition
@@ -171,3 +171,53 @@ class RecipesDB:
             processed_ingr[ingr] = ' and '.join(aggregated_counters).strip()
         return processed_ingr
 
+
+def dishes_from_spreadsheet(path):
+    import pandas as pd
+    import numpy as np
+
+    dishes = []
+    dishes_df = pd.read_excel(path, sheet_name="food_dishes").replace({np.nan: None})
+    for _, row in dishes_df.iterrows():
+        d = row.to_dict()
+        if d['active'] != 'Y':
+            continue
+        del d['active']
+        dishes.append(Dish(**d))
+    return dishes
+
+
+all_dishes = dishes_from_spreadsheet(mock_food_env)
+
+def construct_meals_from_dishes(dishes: list[Dish]) -> dict[str, Dish]:
+    dishes_by_type = defaultdict(list)
+    results: dict[str, Dish] = {}
+    meal_templates = []
+    for d in dishes:
+        if d.category.lower() not in ["lunch", "dinner", "both"]:
+            dishes_by_type[d.category].append(d)
+        else:
+            if not d.elements:
+                results[d.id] = d
+            else:
+                # prepare that for a second pass
+                meal_templates.append(d)
+
+    # second pass: compound meals
+    for template in meal_templates:
+        elt_types = template.elements.split(';')
+        meal_elements = [dishes_by_type[t] for t in elt_types]
+        compounded_meals = product(*meal_elements)
+        for cm in compounded_meals:
+            id_ = '+'.join([e.id for e in cm])
+            name = ' & '.join([e.name for e in cm])
+            prep_time = sum([e.prep_time_m for e in cm])
+            cooking_time = sum([e.cooking_time_m for e in cm])
+            periodicity = max([e.periodicity_d for e in cm])
+            category = MealType(template.category)
+            results[id_] = Dish(id=id_, name=name, category=category, prep_time_m=prep_time,
+                                cooking_time_m=cooking_time, periodicity_d=periodicity)
+    return results
+
+
+all_meals = construct_meals_from_dishes(all_dishes)

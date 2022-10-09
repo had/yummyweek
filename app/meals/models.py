@@ -10,6 +10,21 @@ class MealType(Enum):
     element = "Element"
 
 
+class Dish(db.Model):
+    __tablename__ = "dishes"
+    id = db.Column(db.String, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    category = db.Column(db.String, nullable=False)
+    elements = db.Column(db.String)
+    prep_notes = db.Column(db.String)
+    prep_time_m = db.Column(db.Integer, nullable=False)
+    cooking_notes = db.Column(db.String)
+    cooking_time_m = db.Column(db.Integer, nullable=False)
+    cooking_time_comments = db.Column(db.String)
+    periodicity_d = db.Column(db.Integer, nullable=False)
+    tags = db.Column(db.String)
+
+
 class MealElement(db.Model):
     __tablename__ = "meal_elements"
     id = db.Column(db.String, primary_key=True)
