@@ -113,14 +113,6 @@ def read_mock_ingredient_per_categories(path):
 mock_ingredient_per_category = read_mock_ingredient_per_categories(mock_food_env) if mock_food_env else {}
 
 
-def get_meal_elements():
-    return mock_elements
-
-
-def get_meals_unprocessed():
-    return mock_meals
-
-
 def get_meals():
     return mock_meals_2
 
@@ -172,7 +164,7 @@ class RecipesDB:
         return processed_ingr
 
 
-def dishes_from_spreadsheet(path):
+def dishes_from_spreadsheet(path) -> list[Dish]:
     import pandas as pd
     import numpy as np
 
@@ -189,6 +181,11 @@ def dishes_from_spreadsheet(path):
 
 all_dishes = dishes_from_spreadsheet(mock_food_env)
 
+
+def get_all_dishes() -> list[Dish]:
+    return all_dishes
+
+
 def construct_meals_from_dishes(dishes: list[Dish]) -> dict[str, Dish]:
     dishes_by_type = defaultdict(list)
     results: dict[str, Dish] = {}
@@ -198,12 +195,13 @@ def construct_meals_from_dishes(dishes: list[Dish]) -> dict[str, Dish]:
             dishes_by_type[d.category].append(d)
         else:
             if not d.elements:
+                # this dish can be a full meal (no sub elements)
                 results[d.id] = d
             else:
-                # prepare that for a second pass
+                # keep this for a second pass
                 meal_templates.append(d)
 
-    # second pass: compound meals
+    # second pass: compose meals
     for template in meal_templates:
         elt_types = template.elements.split(';')
         meal_elements = [dishes_by_type[t] for t in elt_types]
@@ -221,3 +219,13 @@ def construct_meals_from_dishes(dishes: list[Dish]) -> dict[str, Dish]:
 
 
 all_meals = construct_meals_from_dishes(all_dishes)
+
+
+def get_all_meals():
+    return all_meals
+
+
+def get_dish_names() -> dict[str, str]:
+    result = {m_id: meal.name for m_id, meal in get_all_meals().items()}
+    result.update({dish.id: dish.name for dish in get_all_dishes()})
+    return result

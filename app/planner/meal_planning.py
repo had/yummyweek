@@ -2,7 +2,7 @@ from datetime import timedelta
 from random import choice
 
 from app.calendar.meal_history import get_history_range
-from app.meals.meal_dao import get_meals, get_meal_elements
+from app.meals.meal_dao import get_meals, get_all_dishes
 from app.meals.models import MealType
 from app.planner.models import MealTime
 
@@ -18,9 +18,9 @@ def suggest_meal(date, time, planner):
 
 
 class MealPlanner:
-    def __init__(self, date_from, elements=None, meals=None, history=None):
+    def __init__(self, date_from, dishes=None, meals=None, history=None):
         self.date_from = date_from
-        self.elements = {e.id: e for e in (elements or get_meal_elements())}
+        self.dishes = {d.id: d for d in (dishes or get_all_dishes())}
         self.meals_dict = meals or get_meals()
         self.max_periodicity = max([m.periodicity_d for m in self.meals_dict.values() if m.periodicity_d])
         self.not_before_table = {}
@@ -30,12 +30,12 @@ class MealPlanner:
 
     def process_dated_meals(self, date, meals):
         for m_id in meals:
-            if m_id in self.elements:
-                elt = self.elements[m_id]
+            if m_id in self.dishes:
+                elt = self.dishes[m_id]
                 self.not_before_table[elt.id] = date + timedelta(days=elt.periodicity_d)
             elif "+" in m_id:
                 # compounded meal, need to decompose the elements
-                meal_elts = [self.elements[elt_id] for elt_id in m_id.split("+")]
+                meal_elts = [self.dishes[elt_id] for elt_id in m_id.split("+")]
                 for elt in meal_elts:
                     self.not_before_table[elt.id] = date + timedelta(days=elt.periodicity_d)
             else:

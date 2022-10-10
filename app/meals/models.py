@@ -7,7 +7,6 @@ class MealType(Enum):
     dinner = "Dinner"
     both = "Both"
     batch_cooking = "Batch"
-    element = "Element"
 
 
 class Dish(db.Model):
