@@ -139,3 +139,4 @@ prototype/
 
 # Mac files
 .DS_Store
+*.xlsx
