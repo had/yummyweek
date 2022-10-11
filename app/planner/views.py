@@ -2,7 +2,6 @@ import calendar
 import os
 import smtplib
 import ssl
-from pprint import pformat
 
 from flask import render_template, redirect, url_for, jsonify, request, current_app
 from datetime import date
@@ -15,7 +14,7 @@ from .params import get_params
 from .shopping import get_categorized_shoppinglist
 from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion, update_suggestion
 from .. import db
-from ..meals.meal_dao import get_meals
+from ..meals.meal_dao import get_all_meals
 
 weekdays = list(calendar.day_name)
 weekdays_abbr = list(calendar.day_abbr)
@@ -43,12 +42,11 @@ def suggest():
 
 @planner.route("/suggest/choices", methods=["POST"])
 def get_choices():
-    mock_data = ["STUFFED_TOMATOES", "RICE_SALAD", "COUSCOUS"]
     form_data = request.form['date'].split("/")
     d = date.fromisoformat(form_data[0])
     lunch_or_dinner = MealTime.lunch if form_data[1] == "L" else MealTime.dinner
     suggestion = get_suggestion(d, lunch_or_dinner)
-    meal_dict = get_meals()
+    meal_dict = get_all_meals()
     eligible_meals = suggestion.eligible_meals.split(";")
     filtered = {m: meal_dict[m].name for m in eligible_meals}
     other = {m_id: m.name for m_id, m in meal_dict.items() if m_id not in eligible_meals}

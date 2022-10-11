@@ -9,7 +9,7 @@ from .. import db
 def _last_day_of_month(year, month):
     return calendar.monthrange(year, month)[1]
 
-def get_history_range(range_from, range_to):
+def get_history_range(range_from: datetime.date, range_to: datetime.date) -> dict[datetime.date, list[str]]:
     rows = MealHistory.query.filter(MealHistory.date.between(range_from, range_to)).order_by(MealHistory.date).all()
     v = {}
     for d, meals in groupby(rows, key=lambda r: r.date):

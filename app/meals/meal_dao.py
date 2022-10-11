@@ -179,16 +179,33 @@ def dishes_from_spreadsheet(path) -> list[Dish]:
     return dishes
 
 
-all_dishes = dishes_from_spreadsheet(mock_food_env)
+all_dishes: list[Dish] = dishes_from_spreadsheet(mock_food_env)
+all_dishes_dict: dict[str, Dish] = {d.id: d for d in all_dishes}
 
 
 def get_all_dishes() -> list[Dish]:
     return all_dishes
 
 
-def construct_meals_from_dishes(dishes: list[Dish]) -> dict[str, Dish]:
+class ComposedMeal:
+    def __init__(self, dishes: list[Dish], meal_type: MealType):
+        self.dishes = dishes
+        self.id = "+".join([d.id for d in dishes])
+        self.name = ' & '.join([d.name for d in dishes])
+        self.prep_time = sum([d.prep_time_m for d in dishes])
+        self.cooking_time = sum([d.cooking_time_m for d in dishes])
+        self.periodicity = max([d.periodicity_d for d in dishes])
+        self.meal_moment = meal_type
+
+    @classmethod
+    def from_composed_id(self, composed_id: str, meal_type: MealType):
+        dishes = [all_dishes_dict[c] for c in composed_id.split("+")]
+        return ComposedMeal(dishes, meal_type)
+
+
+def construct_meals_from_dishes(dishes: list[Dish]) -> dict[str, ComposedMeal]:
     dishes_by_type = defaultdict(list)
-    results: dict[str, Dish] = {}
+    results: dict[str, ComposedMeal] = {}
     meal_templates = []
     for d in dishes:
         if d.category.lower() not in ["lunch", "dinner", "both"]:
@@ -196,7 +213,7 @@ def construct_meals_from_dishes(dishes: list[Dish]) -> dict[str, Dish]:
         else:
             if not d.elements:
                 # this dish can be a full meal (no sub elements)
-                results[d.id] = d
+                results[d.id] = ComposedMeal([d], MealType(d.category))
             else:
                 # keep this for a second pass
                 meal_templates.append(d)
@@ -204,24 +221,18 @@ def construct_meals_from_dishes(dishes: list[Dish]) -> dict[str, Dish]:
     # second pass: compose meals
     for template in meal_templates:
         elt_types = template.elements.split(';')
-        meal_elements = [dishes_by_type[t] for t in elt_types]
-        compounded_meals = product(*meal_elements)
-        for cm in compounded_meals:
-            id_ = '+'.join([e.id for e in cm])
-            name = ' & '.join([e.name for e in cm])
-            prep_time = sum([e.prep_time_m for e in cm])
-            cooking_time = sum([e.cooking_time_m for e in cm])
-            periodicity = max([e.periodicity_d for e in cm])
-            category = MealType(template.category)
-            results[id_] = Dish(id=id_, name=name, category=category, prep_time_m=prep_time,
-                                cooking_time_m=cooking_time, periodicity_d=periodicity)
+        meal_dishes = [dishes_by_type[t] for t in elt_types]
+        composed_meals = product(*meal_dishes)
+        for cm in composed_meals:
+            meal = ComposedMeal(cm, MealType(template.category))
+            results[meal.id] = meal
     return results
 
 
-all_meals = construct_meals_from_dishes(all_dishes)
+all_meals: dict[str, ComposedMeal] = construct_meals_from_dishes(all_dishes)
 
 
-def get_all_meals():
+def get_all_meals() -> dict[str, ComposedMeal]:
     return all_meals
 
 

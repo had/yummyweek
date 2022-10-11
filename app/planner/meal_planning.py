@@ -1,9 +1,10 @@
+import datetime
 from datetime import timedelta
 from random import choice
 
 from app.calendar.meal_history import get_history_range
 from app.meals.meal_dao import get_meals, get_all_dishes
-from app.meals.models import MealType
+from app.meals.models import MealType, Dish
 from app.planner.models import MealTime
 
 
@@ -18,7 +19,7 @@ def suggest_meal(date, time, planner):
 
 
 class MealPlanner:
-    def __init__(self, date_from, dishes=None, meals=None, history=None):
+    def __init__(self, date_from: datetime.date, dishes: list[Dish] = None, meals: dict[str, Dish] = None, history=None):
         self.date_from = date_from
         self.dishes = {d.id: d for d in (dishes or get_all_dishes())}
         self.meals_dict = meals or get_meals()
