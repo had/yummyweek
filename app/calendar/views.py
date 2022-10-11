@@ -7,8 +7,8 @@ from . import calendar
 from .forms import SelectMealForm
 from datetime import date
 import calendar as py_cal
-from .meal_history import get_history, set_history
-from ..meals.meal_dao import get_meals, dish_names
+from app.meals.meal_history import get_history, set_history
+from ..meals.meal_dao import get_meals, get_dish_names
 from ..planner.suggestions_dao import get_suggestions, get_committed_suggestions, remove_suggestions
 
 weekdays = list(py_cal.day_name)
@@ -40,7 +40,7 @@ def calendar_month(year, month):
     today = now.day if (now.year == year and now.month == month ) else -1
     return render_template("calendar.html", year=year, month=month, monthname=month_names[month],
                            weekdays=weekdays, weeks=cal.monthdayscalendar(year, month), mealform=meal_form,
-                           history=history, suggestions=suggestions, mealnames=dish_names,
+                           history=history, suggestions=suggestions, mealnames=get_dish_names(),
                            prev=prev, next=next_, today=today)
 
 

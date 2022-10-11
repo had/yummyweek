@@ -2,7 +2,7 @@ import datetime
 from datetime import timedelta
 from random import choice
 
-from app.calendar.meal_history import get_history_range
+from app.meals.meal_history import get_history_range
 from app.meals.meal_dao import get_meals, get_all_dishes
 from app.meals.models import MealType, Dish
 from app.planner.models import MealTime

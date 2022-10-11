@@ -2,12 +2,13 @@ import calendar
 import datetime
 from itertools import groupby
 
-from .models import MealHistory
-from .. import db
+from app.meals.models import MealHistory
+from app import db
 
 
 def _last_day_of_month(year, month):
     return calendar.monthrange(year, month)[1]
+
 
 def get_history_range(range_from: datetime.date, range_to: datetime.date) -> dict[datetime.date, list[str]]:
     rows = MealHistory.query.filter(MealHistory.date.between(range_from, range_to)).order_by(MealHistory.date).all()
@@ -21,6 +22,7 @@ def get_history(year, month):
     range_1 = datetime.date(year, month, 1)
     range_2 = datetime.date(year, month, _last_day_of_month(year, month))
     return get_history_range(range_1, range_2)
+
 
 def set_history(year, month, day, meals):
     date = datetime.date(year, month, day)
