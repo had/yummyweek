@@ -23,6 +23,11 @@ class Dish(db.Model):
     periodicity_d = db.Column(db.Integer, nullable=False)
     tags = db.Column(db.String)
 
+    def __repr__(self):
+        params = ", ".join([f"{a}={getattr(self, a)}" for a in ["id", "name", "category", "elements", "prep_time_m",
+                                                                "cooking_time_m", "periodicity_d"]])
+        return f"Dish({params})"
+
 
 class MealElement(db.Model):
     __tablename__ = "meal_elements"
@@ -58,6 +63,7 @@ class Recipe(db.Model):
     id = db.Column(db.String, primary_key=True)
     # note: this is a pipe-separated string with list and quantity of ingredients (see unit-tests)
     ingredients = db.Column(db.String)
+
 
 class Ingredient(db.Model):
     __tablename__ = "ingredients"

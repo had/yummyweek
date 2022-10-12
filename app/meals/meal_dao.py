@@ -194,13 +194,13 @@ class ComposedMeal:
         self.name = ' & '.join([d.name for d in dishes])
         self.prep_time = sum([d.prep_time_m for d in dishes])
         self.cooking_time = sum([d.cooking_time_m for d in dishes])
-        self.periodicity = max([d.periodicity_d for d in dishes])
+        self.periodicity_d = max([d.periodicity_d for d in dishes])
         self.meal_moment = meal_type
 
     @classmethod
-    def from_composed_id(self, composed_id: str, meal_type: MealType):
+    def from_composed_id(cls, composed_id: str, meal_type: MealType):
         dishes = [all_dishes_dict[c] for c in composed_id.split("+")]
-        return ComposedMeal(dishes, meal_type)
+        return cls(dishes, meal_type)
 
 
 def construct_meals_from_dishes(dishes: list[Dish]) -> dict[str, ComposedMeal]:

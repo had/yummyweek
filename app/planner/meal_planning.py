@@ -3,7 +3,7 @@ from datetime import timedelta
 from random import choice
 
 from app.meals.meal_history import get_history_range
-from app.meals.meal_dao import get_meals, get_all_dishes
+from app.meals.meal_dao import get_meals, get_all_dishes, construct_meals_from_dishes
 from app.meals.models import MealType, Dish
 from app.planner.models import MealTime
 
@@ -22,7 +22,7 @@ class MealPlanner:
     def __init__(self, date_from: datetime.date, dishes: list[Dish] = None, meals: dict[str, Dish] = None, history=None):
         self.date_from = date_from
         self.dishes = {d.id: d for d in (dishes or get_all_dishes())}
-        self.meals_dict = meals or get_meals()
+        self.meals_dict = construct_meals_from_dishes(list(self.dishes.values()))
         self.max_periodicity = max([m.periodicity_d for m in self.meals_dict.values() if m.periodicity_d])
         self.not_before_table = {}
         history = history or get_history_range(date_from - timedelta(days=self.max_periodicity), date_from)
@@ -58,7 +58,7 @@ class MealPlanner:
         for m in meals:
             if "+" in m.id:
                 # compounded meal, need to decompose the elements
-                meal_elts = [self.elements[elt_id] for elt_id in m.id.split("+")]
+                meal_elts = [self.dishes[elt_id] for elt_id in m.id.split("+")]
                 if all([is_eligible_from_history(elt) for elt in meal_elts]):
                     history_eligible.append(m)
             else:
