@@ -33,7 +33,7 @@ def upgrade():
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.Column('date', sa.Date(), nullable=True),
                     sa.Column('meal', sa.String(), nullable=True),
-                    sa.ForeignKeyConstraint(['meal'], ['meals.id'], ),
+                    sa.ForeignKeyConstraint(['meal'], ['meals.id'], name="meal2mealhistory"),
                     sa.PrimaryKeyConstraint('id')
                     )
     # ### end Alembic commands ###

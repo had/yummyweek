@@ -93,8 +93,9 @@ class XlsxDishReader:
         import pandas as pd
         import numpy as np
 
-        dishes = []
+        print("Reading XLSX spreadsheet " + self.path)
         dishes_df = pd.read_excel(self.path, sheet_name="food_dishes").replace({np.nan: None})
+        dishes = []
         for _, row in dishes_df.iterrows():
             d = row.to_dict()
             if d['active'] != 'Y':
