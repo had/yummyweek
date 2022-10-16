@@ -12,7 +12,7 @@ from .meal_planning import MealPlanner
 from .models import MealTime, Suggestion
 from .params import get_params
 from .shopping import get_categorized_shoppinglist
-from .suggestions_dao import get_or_create_suggestions, recreate_suggestion, get_suggestion, update_suggestion
+from .suggestions_dao import get_or_create_suggestions, recreate_suggestions, get_suggestion, update_suggestion
 from .. import db
 from ..meals.meal_dao import get_all_meals
 
@@ -29,12 +29,12 @@ def suggest():
     lunches = [(s.suggestion, s.committed) for s in suggestions[::2]]
     dinners = [(s.suggestion, s.committed) for s in suggestions[1::2]]
 
-    planner = MealPlanner(now)
-    mealnames = {k: v.name for k, v in planner.meals_dict.items()}
-    prep_times = {k: round(v.prep_time_m) for k, v in planner.meals_dict.items()}
-    cooking_times = {k: round(v.cooking_time_m) for k, v in planner.meals_dict.items()}
+    meal_planner = MealPlanner(now)
+    meal_names = {k: v.name for k, v in meal_planner.meals_dict.items()}
+    prep_times = {k: round(v.prep_time_m) for k, v in meal_planner.meals_dict.items()}
+    cooking_times = {k: round(v.cooking_time_m) for k, v in meal_planner.meals_dict.items()}
     dates = [(weekdays_abbr[calendar.weekday(d.year, d.month, d.day)], d) for d in date_range(now, duration)]
-    return render_template("suggest.html", start_date=str(now), nb_days=duration, mealnames=mealnames,
+    return render_template("suggest.html", start_date=str(now), nb_days=duration, mealnames=meal_names,
                            suggestion_form=suggestion_form, dates=dates,
                            prep_times=prep_times, cooking_times=cooking_times,
                            suggested_lunches=lunches, suggested_dinners=dinners)
@@ -92,7 +92,7 @@ def uncommit_suggestion():
 def redo_suggest():
     now = date.today()
     duration = 7
-    sugg = recreate_suggestion(now, duration)
+    sugg = recreate_suggestions(now, duration)
     print("RECREATE_SUGG ", [(s.date, s.time, s.suggestion) for s in sugg])
     return redirect(url_for('.suggest'))
 

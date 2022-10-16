@@ -13,6 +13,6 @@ class Suggestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date)
     time = db.Column(db.Enum(MealTime))
-    eligible_meals = db.Column(db.String)  # eligible meals are semi-column separated meal IDs
-    suggestion = db.Column(db.String)  # suggestion is a single meal ID
+    eligible_meals = db.Column(db.String)  # eligible meals are semi-column separated ComposedMeal IDs
+    suggestion = db.Column(db.String)  # suggestion is a ComposedMeal ID (not a DB object)
     committed = db.Column(db.Boolean, default=False, server_default=false())

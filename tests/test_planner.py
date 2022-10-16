@@ -1,8 +1,15 @@
-from app.meals.models import Meal, MealElement, Dish
+from app.meals.meal_dao import ComposedMeal, change_meal_retriever, construct_meals_from_dishes
+from app.meals.models import Dish, MealType
 from datetime import date
 
 from app.planner.meal_planning import MealPlanner
 
+class FakeMealRetriever:
+    def __init__(self, dishes):
+        self.dishes = dishes
+
+    def get(self):
+        return self.dishes
 
 def test_planner_history():
     roman_banquet_dishes = [
@@ -18,11 +25,17 @@ def test_planner_history():
         Dish(id="TEST_FOOD_5", name="Pitted dates stuffed with nuts and pine kernels, fried in honey",
              category="Lunch", prep_time_m=20, cooking_time_m=0, periodicity_d=1),
     ]
+    change_meal_retriever(FakeMealRetriever(roman_banquet_dishes))
+    meals = construct_meals_from_dishes(roman_banquet_dishes)
     history = {
-        date(68, 6, 3): ["TEST_FOOD_1", "TEST_FOOD_2"],
-        date(68, 6, 4): ["TEST_FOOD_3", "TEST_FOOD_4"],
+        date(68, 6, 3): [ComposedMeal.from_composed_id("TEST_FOOD_1", MealType.lunch),
+                         ComposedMeal.from_composed_id("TEST_FOOD_2", MealType.lunch)
+                         ],
+        date(68, 6, 4): [ComposedMeal.from_composed_id("TEST_FOOD_3", MealType.lunch),
+                         ComposedMeal.from_composed_id("TEST_FOOD_4", MealType.lunch),
+                         ],
     }
-    planner = MealPlanner(date_from=date(68, 6, 5), dishes=roman_banquet_dishes, history=history)
+    planner = MealPlanner(date_from=date(68, 6, 5), meals=meals, history=history)
     assert planner.max_periodicity == 7
     assert planner.not_before_table["TEST_FOOD_1"] == date(68, 6, 6)
     assert planner.not_before_table["TEST_FOOD_2"] == date(68, 6, 8)
@@ -52,11 +65,15 @@ def test_planner_history_compounded():
         Dish(id="COMPOUNDED_1", name="Ancient Rome Menu",
              category="Lunch", elements="appetiser;main_course")
     ]
+    change_meal_retriever(FakeMealRetriever(roman_banquet_dishes))
+    meals = construct_meals_from_dishes(roman_banquet_dishes)
     history = {
-        date(68, 6, 3): ["TEST_ELEMENT_1+TEST_ELEMENT_4", "TEST_FOOD_2"],
-        date(68, 6, 4): ["TEST_FOOD_3"],
+        date(68, 6, 3): [
+            ComposedMeal.from_composed_id("TEST_ELEMENT_1+TEST_ELEMENT_4", MealType.lunch),
+            ComposedMeal.from_composed_id("TEST_FOOD_2", MealType.dinner)],
+        date(68, 6, 4): [ComposedMeal.from_composed_id("TEST_FOOD_3", MealType.lunch)],
     }
-    planner = MealPlanner(date_from=date(68, 6, 5), dishes=roman_banquet_dishes, history=history)
+    planner = MealPlanner(date_from=date(68, 6, 5), meals=meals, history=history)
     assert planner.max_periodicity == 10
     suggestions = [s.id for s in planner.get_eligible_meals(date(68, 6, 5))]
     assert "TEST_ELEMENT_1+TEST_ELEMENT_3" not in suggestions
@@ -75,9 +92,11 @@ def test_planner_history_element():
         Dish(id="COMPOUNDED_1", name="Ancient Rome Menu",
              category="Lunch", elements="appetiser;main_course")
     ]
+    change_meal_retriever(FakeMealRetriever(roman_banquet_dishes))
+    meals = construct_meals_from_dishes(roman_banquet_dishes)
     history = {
-        date(68, 6, 3): ["TEST_ELEMENT_1"],
+        date(68, 6, 3): [ComposedMeal.from_composed_id("TEST_ELEMENT_1", MealType.lunch)],
     }
-    planner = MealPlanner(date_from=date(68, 6, 4), dishes=roman_banquet_dishes, history=history)
+    planner = MealPlanner(date_from=date(68, 6, 4), meals=meals, history=history)
     suggestions = [s.id for s in planner.get_eligible_meals(date(68, 6, 4))]
     assert suggestions == ["TEST_ELEMENT_2+TEST_ELEMENT_3"]
