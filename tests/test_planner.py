@@ -3,13 +3,8 @@ from app.meals.models import Dish, MealType
 from datetime import date
 
 from app.planner.meal_planning import MealPlanner
+from tests import FakeMealRetriever
 
-class FakeMealRetriever:
-    def __init__(self, dishes):
-        self.dishes = dishes
-
-    def get(self):
-        return self.dishes
 
 def test_planner_history():
     roman_banquet_dishes = [

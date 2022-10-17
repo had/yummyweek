@@ -47,26 +47,26 @@ def get_ingredient_per_category():
 
 class RecipesDB:
     def __init__(self, recipes=None):
-        def parse_ingredients(ingredients_str):
-            ingr_list = ingredients_str.split("|") if ingredients_str else []
-            return ingr_list
+        def parse_ingredients(ingredients_str) -> list[str]:
+            ingredient_list = ingredients_str.split("|") if ingredients_str else []
+            return ingredient_list
 
         recipes = recipes or get_recipes()
-        self.recipes_ingr = {r.id: parse_ingredients(r.ingredients) for r in recipes}
+        self.recipes_ingredients = {r.id: parse_ingredients(r.ingredients) for r in recipes}
 
-    def ingredients_for_meals(self, meals):
-        meals_or_elements = [e for m in meals for e in m.split('+')]
-        ingredients = [i for e in meals_or_elements for i in self.recipes_ingr.get(e, [])]
-        uncountable_ingr, countable_ingr = partition(lambda i: "*" in i,
-                                                     [ingr for e in meals_or_elements for ingr in
-                                                      self.recipes_ingr.get(e, [])])
-        processed_ingr = {ingr: "" for ingr in uncountable_ingr}
+    def ingredients_for_meals(self, meals: list[str]) -> dict[str, str]:
+        dishes: list[Dish] = [d for m in meals for d in ComposedMeal.from_composed_id(m).dishes]
+        ingredients = [i for d in dishes for i in self.recipes_ingredients.get(d.id, [])]
+        uncountable_ingredients, countable_ingredients = partition(lambda i: "*" in i, ingredients)
+        result = {ingredient: "" for ingredient in uncountable_ingredients}
+
         # aggregate countable ingredients (with "*" in the string)
         # for ex. "potatoes*300 g" and "potatoes*500 g" should result in "potatoes: 800 g"
-        # if there are several types like "egplant*2" and "eggplant*300 g" it should return "eggplant: 2 unit and 300 g"
+        # if there are several types like "eggplant*2" and "eggplant*300 g" it
+        # should return "eggplant: 2 unit and 300 g"
         # TODO: handle singular vs. plural nouns
-        grouped_ingr = groupby(sorted([i.split("*") for i in countable_ingr]), key=lambda x: x[0])
-        for ingr, counters_gr in grouped_ingr:
+        grouped_ingredients = groupby(sorted([i.split("*") for i in countable_ingredients]), key=lambda x: x[0])
+        for ingredient, counters_gr in grouped_ingredients:
             parsed_counters = []
             counters = [c[1] for c in counters_gr]
             for c in counters:
@@ -78,10 +78,10 @@ class RecipesDB:
             aggregated_counters = []
             for key, pc_gr in groupby(sorted(parsed_counters), key=lambda c: c[0]):
                 pc = [c[1] for c in pc_gr]
-                aggreg = sum(map(int, pc))
-                aggregated_counters.append(f"{aggreg} {key}")
-            processed_ingr[ingr] = ' and '.join(aggregated_counters).strip()
-        return processed_ingr
+                aggregation = sum(map(int, pc))
+                aggregated_counters.append(f"{aggregation} {key}")
+            result[ingredient] = ' and '.join(aggregated_counters).strip()
+        return result
 
 
 class XlsxDishReader:

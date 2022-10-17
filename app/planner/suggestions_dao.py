@@ -58,10 +58,12 @@ def update_suggestion(date_: datetime.date, time_: MealTime, new_meal_id: str):
     db.session.commit()
 
 
+# noinspection PyComparisonWithNone
 def recreate_suggestions(from_date: datetime.date, duration_d: int) -> list[Suggestion]:
     suggestions = Suggestion.query.filter(
-        and_(Suggestion.date >= from_date, or_(Suggestion.committed == None, Suggestion.committed == False))).all()
+        and_(Suggestion.date >= from_date, or_(Suggestion.committed == None, Suggestion.committed == False))).all()  # nopep8
     print("RETRY SUGGESTIONS: ", [(s.suggestion, s.committed) for s in suggestions])
     Suggestion.query.filter(
-        and_(Suggestion.date >= from_date, or_(Suggestion.committed == None, Suggestion.committed == False))).delete()
+        # noinspection INSPECTION_NAME
+        and_(Suggestion.date >= from_date, or_(Suggestion.committed == None, Suggestion.committed == False))).delete()  # nopep8
     return get_or_create_suggestions(from_date, duration_d)

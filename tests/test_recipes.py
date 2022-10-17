@@ -1,7 +1,8 @@
 import pytest
 
-from app.meals.meal_dao import RecipesDB
-from app.meals.models import Recipe
+from app.meals.meal_dao import RecipesDB, change_meal_retriever
+from app.meals.models import Recipe, Dish
+from tests import FakeMealRetriever
 
 
 @pytest.fixture()
@@ -15,10 +16,19 @@ def roman_recipes():
     ]
     return mock_recipes
 
+
 def test_ingredient_1_recipe(roman_recipes):
+    roman_banquet_dishes = [
+        Dish(id="EGGS_WITH_HONEY", name="Eggs with honey",
+             category="Lunch", prep_time_m=30, cooking_time_m=25, periodicity_d=7),
+        Dish(id="DORMOUSE", name="Something probably delicious",
+             category="Lunch", prep_time_m=20, cooking_time_m=0, periodicity_d=1),
+    ]
+    change_meal_retriever(FakeMealRetriever(roman_banquet_dishes))
     recipes = RecipesDB(recipes=roman_recipes)
     ingr = recipes.ingredients_for_meals(["EGGS_WITH_HONEY"])
     assert ingr == {"eggs": "4", "milk": "275 ml", "honey": "3 tbsp", "olive oil": "1 tbsp"}
+
 
 def test_ingredient_aggregate_2_recipes(roman_recipes):
     recipes = RecipesDB(recipes=roman_recipes)

@@ -31,24 +31,3 @@ def set_history(year, month, day, meals: str):
     for meal in meals:
         db.session.add(MealHistory(date=date, meal=meal))
     db.session.commit()
-
-
-# Simple memory-based history for development purpose (no DB)
-class MonthDict(dict):
-    def __missing__(self, key):
-        (year, month) = key
-        v = [[] for _ in range(_last_day_of_month(year, month) + 1)]
-        self[key] = v
-        return v
-
-
-history = MonthDict()
-
-
-def get_history_mock(year, month):
-    return history[(year, month)]
-
-
-def set_history_mock(year, month, day, meals):
-    l = history[(year, month)]
-    l[day] = meals
