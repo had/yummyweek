@@ -16,11 +16,11 @@ class Dish(db.Model):
     category = db.Column(db.String, nullable=False)
     elements = db.Column(db.String)
     prep_notes = db.Column(db.String)
-    prep_time_m = db.Column(db.Integer, nullable=False)
+    prep_time_m = db.Column(db.Integer, default=0, nullable=False)
     cooking_notes = db.Column(db.String)
-    cooking_time_m = db.Column(db.Integer, nullable=False)
+    cooking_time_m = db.Column(db.Integer, default=0, nullable=False)
     cooking_time_comments = db.Column(db.String)
-    periodicity_d = db.Column(db.Integer, nullable=False)
+    periodicity_d = db.Column(db.Integer, default=0, nullable=False)
     tags = db.Column(db.String)
 
     def __repr__(self):

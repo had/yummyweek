@@ -100,7 +100,10 @@ class XlsxDishReader:
             if d['active'] != 'Y':
                 continue
             del d['active']
-            dishes.append(Dish(**d))
+            try:
+                dishes.append(Dish(**d))
+            except:
+                print("XlsxDishReader Issue with "+d['id'])
         return dishes
 
     @ttl_cache(maxsize=1, ttl=300)

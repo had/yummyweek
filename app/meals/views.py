@@ -33,16 +33,19 @@ def upload_meals():
             )
             f.save(fpath)
             new_dishes = XlsxDishReader(fpath).get()
-            try:
-                db.session.add_all(new_dishes)
-                db.session.commit()
-                flash(f"Found {len(new_dishes)} dishes in {filename}")
-            except IntegrityError as e:
-                db.session.rollback()
-                flash("Problem found while adding dishes to DB")
-                flash(str(e))
-
-            # os.remove(filename)
+            from collections import Counter
+            print("Duplicates: " + str([d for d, c in Counter([d.id for d in new_dishes]).items() if c > 1]))
+            added = 0
+            for d in new_dishes:
+                print(f"Adding {d.id}")
+                try:
+                    db.session.add(d)
+                    db.session.commit()
+                    added += 1
+                except IntegrityError as e:
+                    db.session.rollback()
+            flash(f"Added {added} dishes from {filename}")
+            os.remove(fpath)
     else:
         print(upload_form.errors, upload_form.xlsx_file.data.filename)
         flash(upload_form.errors['xlsx_file'][0])

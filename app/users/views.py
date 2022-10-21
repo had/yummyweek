@@ -22,12 +22,14 @@ def login():
 
     return render_template("login.html", login_form=login_form)
 
+
 @users.route("/logout")
 @login_required
 def logout():
     logout_user()
     flash("You have been logged out")
     return redirect(url_for("main.index"))
+
 
 @users.route("/register", methods=["GET", "POST"])
 def register():
