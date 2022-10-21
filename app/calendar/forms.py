@@ -6,5 +6,5 @@ from ..meals.meal_dao import get_dish_names
 class SelectMealForm(FlaskForm):
     day = HiddenField("day")
     remove_suggestions = HiddenField("remove_suggestions")
-    meals = SelectMultipleField("Pick a meal", choices=get_dish_names().items())
+    meals = SelectMultipleField("Pick a meal", choices=lambda: get_dish_names().items())
     submit = SubmitField("Confirm")

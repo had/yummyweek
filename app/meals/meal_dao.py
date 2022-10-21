@@ -88,8 +88,7 @@ class XlsxDishReader:
     def __init__(self, path):
         self.path = path
 
-    @ttl_cache(maxsize=1, ttl=300)
-    def get(self) -> list[Dish]:
+    def to_list(self) -> list[Dish]:
         import pandas as pd
         import numpy as np
 
@@ -104,8 +103,18 @@ class XlsxDishReader:
             dishes.append(Dish(**d))
         return dishes
 
+    @ttl_cache(maxsize=1, ttl=300)
+    def get(self) -> list[Dish]:
+        return self.to_list()
 
-meal_retriever = XlsxDishReader(mock_food_env)
+
+class DBDishReader:
+    @staticmethod
+    def get() -> list[Dish]:
+        return Dish.query.all()
+
+
+meal_retriever = DBDishReader()
 
 
 # TODO: change this ugly setter (used for testing purpose) with DI or similar
