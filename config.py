@@ -9,7 +9,6 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # files upload
-    UPLOAD_PATH = "uploads"
     MAX_CONTENT_LENGTH = 1024 * 1024  # 1MB
 
     @staticmethod
@@ -39,6 +38,9 @@ class ProductionConfig(Config):
 
 
 class HerokuConfig(ProductionConfig):
+    # https://help.heroku.com/ZKNTJQSK/why-is-sqlalchemy-1-4-x-not-connecting-to-heroku-postgres
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "").replace("postgres://", "postgresql://")
+
     @classmethod
     def init_app(cls, app):
         ProductionConfig.init_app(app)

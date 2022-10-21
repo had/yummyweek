@@ -28,7 +28,6 @@ def upload_meals():
         if filename:
             fpath = os.path.join(
                 current_app.root_path,
-                current_app.config['UPLOAD_PATH'],
                 filename
             )
             f.save(fpath)

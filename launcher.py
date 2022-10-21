@@ -13,7 +13,3 @@ def deploy():
 
     # migrate database to latest revision
     upgrade()
-
-    # create uploads directory
-    upload_dir = os.path.join(app.root_path, app.config['UPLOAD_PATH'])
-    os.makedirs(upload_dir, exist_ok=True)
