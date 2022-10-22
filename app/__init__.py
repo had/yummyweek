@@ -15,6 +15,10 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
 
+    if app.config["SSL_REDIRECT"]:
+        from flask_sslify import SSLify
+        SSLify(app)
+
     db.init_app(app)
     bootstrap.init_app(app)
     login_manager.init_app(app)
