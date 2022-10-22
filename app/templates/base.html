@@ -22,6 +22,9 @@
                 <img src="{{ url_for('static', filename='cat_eating_bread.png') }}" width="70" height="70" class="m-0 p-0 d-inline-block align-top" alt="">
                 <strong></strong>
             </a>
+           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent" style="font-size: 25px !important; ">
                 <ul class="navbar-nav mr-auto">
                     {{ render_nav_item('main.index', 'Yummyweek', use_li=True) }}
@@ -30,14 +33,14 @@
                     {{ render_nav_item('planner.suggest', 'Suggestions', use_li=True) }}
                     {{ render_nav_item('planner.params', 'Parameters', use_li=True) }}
                 </ul>
-            </div>
-            <div>
-                {% if current_user.is_authenticated %}
-                <a class="btn btn-dark" href="{{ url_for('users.logout') }}">Log out {{current_user.username}}</a>
-                {% else %}
-                <a class="btn btn-dark" href="{{ url_for('users.login') }}">Log in</a>
-                <a class="btn btn-dark" href="{{ url_for('users.register') }}">Register</a>
-                {% endif %}
+                <div>
+                    {% if current_user.is_authenticated %}
+                    <a class="btn btn-dark" href="{{ url_for('users.logout') }}">Log out {{current_user.username}}</a>
+                    {% else %}
+                    <a class="btn btn-dark" href="{{ url_for('users.login') }}">Log in</a>
+                    <a class="btn btn-dark" href="{{ url_for('users.register') }}">Register</a>
+                    {% endif %}
+                </div>
             </div>
         </nav>
         <div class="container pb-5">
