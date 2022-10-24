@@ -8,7 +8,7 @@ from . import date_range
 from .models import Suggestion, MealTime
 from .. import db
 from .meal_planning import MealPlanner, suggest_meal
-from ..meals.meal_dao import ComposedMeal
+from ..meals.dao import ComposedMeal
 
 
 def get_suggestion(date_: datetime.date, time_: MealTime) -> Suggestion:

@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, SelectMultipleField, SubmitField
-from ..meals.meal_dao import get_dish_names
+from ..meals.dao import get_dish_names
 
 
 class SelectMealForm(FlaskForm):

@@ -1,4 +1,4 @@
-from app.meals.meal_dao import ComposedMeal, change_meal_retriever, construct_meals_from_dishes
+from app.meals.dao import ComposedMeal, change_meal_retriever, construct_meals_from_dishes
 from app.meals.models import Dish, MealType
 from datetime import date
 

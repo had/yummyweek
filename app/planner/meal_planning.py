@@ -4,7 +4,7 @@ from datetime import timedelta
 from random import choice
 
 from app.meals.meal_history import get_history_range
-from app.meals.meal_dao import ComposedMeal, get_all_meals
+from app.meals.dao import ComposedMeal, get_all_meals
 from app.meals.models import MealType
 from app.planner.models import MealTime
 

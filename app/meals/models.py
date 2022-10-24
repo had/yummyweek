@@ -38,7 +38,7 @@ class Recipe(db.Model):
 
 class Ingredient(db.Model):
     __tablename__ = "ingredients"
-    id = db.Column(db.String, primary_key=True)
+    ingredient = db.Column(db.String, primary_key=True)
     category = db.Column(db.String)
 
 

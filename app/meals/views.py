@@ -8,7 +8,8 @@ from werkzeug.utils import secure_filename
 
 from . import meals
 from .forms import DishesUploadForm
-from .meal_dao import get_all_meals, XlsxDishReader
+from .dao import get_all_meals, MealsDBAccess
+from .dao_xlsx_readers import XlsxReader
 from .. import db
 
 
@@ -31,19 +32,18 @@ def upload_meals():
                 filename
             )
             f.save(fpath)
-            new_dishes = XlsxDishReader(fpath).get()
-            from collections import Counter
-            print("Duplicates: " + str([d for d, c in Counter([d.id for d in new_dishes]).items() if c > 1]))
-            added = 0
-            for d in new_dishes:
-                print(f"Adding {d.id}")
-                try:
-                    db.session.add(d)
-                    db.session.commit()
-                    added += 1
-                except IntegrityError as e:
-                    db.session.rollback()
-            flash(f"Added {added} dishes from {filename}")
+            xlsx_reader = XlsxReader(fpath)
+            dishes_added = MealsDBAccess.add_all_dishes(db, xlsx_reader.get_dishes())
+            recipes_added = MealsDBAccess.add_all_recipes(db, xlsx_reader.get_recipes())
+            ingredients_added = MealsDBAccess.add_all_ingredients(db, xlsx_reader.get_ingredients())
+            if dishes_added:
+                flash(f"Added {dishes_added} dishes from {filename}")
+            if recipes_added:
+                flash(f"Added {recipes_added} recipes from {filename}")
+            if ingredients_added:
+                flash(f"Added {ingredients_added} ingredients from {filename}")
+            if dishes_added+recipes_added+ingredients_added == 0:
+                flash(f"Could not add anything from {filename}")
             os.remove(fpath)
     else:
         print(upload_form.errors, upload_form.xlsx_file.data.filename)

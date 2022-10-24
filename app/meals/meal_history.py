@@ -2,7 +2,7 @@ import calendar
 import datetime
 from itertools import groupby
 
-from app.meals.meal_dao import ComposedMeal
+from app.meals.dao import ComposedMeal
 from app.meals.models import MealHistory, MealType
 from app import db
 

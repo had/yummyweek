@@ -14,7 +14,7 @@ from .params import get_params
 from .shopping import get_categorized_shoppinglist
 from .suggestions_dao import get_or_create_suggestions, recreate_suggestions, get_suggestion, update_suggestion
 from .. import db
-from ..meals.meal_dao import get_all_meals
+from ..meals.dao import get_all_meals
 
 weekdays = list(calendar.day_name)
 weekdays_abbr = list(calendar.day_abbr)
