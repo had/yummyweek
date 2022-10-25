@@ -9,10 +9,11 @@ from ..meals.recipe_book import RecipeBook
 
 def get_categorized_shoppinglist(date_, duration) -> dict[str, list[(str, str)]]:
     suggestions: list[Suggestion] = get_or_create_suggestions(date_, duration)
+    committed_suggestions = [s.suggestion for s in suggestions if s.committed]
     recipes_db = RecipeBook()
-    ingr_list: dict[str, str] = recipes_db.ingredients_for_meals([s.suggestion for s in suggestions])
+    ingredient_list: dict[str, str] = recipes_db.ingredients_for_meals(committed_suggestions)
     ingredient_grouped = defaultdict(list)
     ingredient_per_category = get_ingredient_per_category()
-    for k, v in ingr_list.items():
+    for k, v in ingredient_list.items():
         ingredient_grouped[ingredient_per_category[k]].append((k, v))
     return ingredient_grouped
