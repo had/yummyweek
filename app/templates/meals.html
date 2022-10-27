@@ -6,7 +6,8 @@
 <div class="pb-3 d-flex justify-content-between">
     <h4>Dishes & meals</h4>
     <div>
-        <a type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#FileUploadModal"> Upload dishes <i class="fa fa-file"></i> </a>
+        <a type="button" class="btn btn-sm btn-success" href="{{url_for(".add_dish", dish_type="dish")}}"> Add dish &nbsp <i class="fa fa-plus"></i> </a>
+        <a type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#FileUploadModal"> Upload dishes &nbsp <i class="fa fa-file"></i> </a>
     </div>
 </div>
 
@@ -17,8 +18,8 @@
     <div class="card-body">
         <h5 class="card-title">{{ meal.name }} </h5>
         <hr/>
-        <p class="card-text">Preparation ({{meal.prep_time_m}}): {{meal.prep_notes}} </p>
-        <p class="card-text">Cooking ({{meal.cooking_time_m}}): {{meal.cooking_notes}} </p>
+        <div style="height: 38px;" class="btn btn-light"><img src="{{ url_for('static', filename='cutting-board-icon.svg') }}" height="20"></img> <b>{{meal.prep_time_m}}mn</b></div>
+        <div style="height: 38px;" class="btn btn-light"><img src="{{ url_for('static', filename='non-stick-icon.svg') }}"  height="12" ></img> <b>{{meal.cooking_time_m}}mn</b></div>
     </div>
 </div>
 {% endfor %}

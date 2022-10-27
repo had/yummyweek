@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>Add meals</h1>
+</div>
+
+<ul class="nav nav-tabs">
+{% for url, title in nav_elts.items() %}
+  <li class="nav-item">
+    <a class="nav-link {{'active' if url == current_nav}}" href="{{url_for(".add_dish", dish_type=url)}}"><h4>{{title}}</h4></a>
+  </li>
+{% endfor %}
+</ul>
+
+{% from 'bootstrap4/form.html' import render_form %}
+
+
+<div class="col-md-4">
+    {{ render_form(dish_form) }}
+</div>
+
+
+
+{% endblock %}
