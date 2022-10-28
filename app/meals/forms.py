@@ -7,10 +7,11 @@ from wtforms.validators import DataRequired
 class DishForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     prep_time = IntegerField("Preparation time (minutes)", validators=[DataRequired()], default=0)
-    cooking_time = IntegerField("Preparation time (minutes)", validators=[DataRequired()], default=0)
+    cooking_time = IntegerField("Cooking time (minutes)", validators=[DataRequired()], default=0)
     periodicity = IntegerField("Min. days before eating again", validators=[DataRequired()], default=0)
     moment = SelectField("Moment", validators=[DataRequired()], choices=["-", "Lunch", "Dinner", "Both"])
-    elements = SelectMultipleField("Elements", choices=[])
+    elements_select2 = SelectMultipleField("Elements", choices=[])
+    category_select2 = SelectField("Category", choices=[])
     submit = SubmitField("Add")
 
 

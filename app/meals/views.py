@@ -1,7 +1,7 @@
 import os
 import re
 
-from flask import render_template, redirect, url_for, flash, current_app
+from flask import render_template, redirect, url_for, flash, current_app, jsonify
 from flask_login import login_required
 from sqlalchemy.exc import IntegrityError
 from werkzeug.datastructures import FileStorage
@@ -19,38 +19,6 @@ from .. import db
 def list_meals():
     upload_form = DishesUploadForm()
     return render_template("meals.html", meals=get_all_meals().values(), upload_form=upload_form)
-
-
-@meals.route("/meals/add/<dish_type>", methods=["GET", "POST"])
-def add_dish(dish_type: str):
-    nav_elts = {
-        "dish": "Dish",
-        # "add_composed_meal": "Composed meal"
-    }
-    dish_form = DishForm()
-    if dish_form.validate_on_submit():
-        dish_name: str = dish_form.name.data.strip()
-        dish_id: str = re.sub("[^A-Z0-9]", "_", dish_name.upper())
-        dish = Dish(
-            id=dish_id,
-            name=dish_name,
-            category=dish_form.moment.data,
-            prep_time_m=dish_form.prep_time.data,
-            cooking_time_m=dish_form.cooking_time.data,
-            periodicity_d=dish_form.periodicity.data
-        )
-        try:
-            db.session.add(dish)
-            db.session.commit()
-            flash(f"{dish.name} added")
-            return redirect(url_for(".list_meals"))
-        except IntegrityError as e:
-            db.session.rollback()
-    if dish_type == "dish":
-        del dish_form.elements
-    return render_template("add_dish.html", nav_elts=nav_elts, current_nav=dish_type, dish_form=dish_form)
-
-
 
 @meals.route("/meals/upload", methods=["POST"])
 @login_required
@@ -82,3 +50,48 @@ def upload_meals():
         print(upload_form.errors, upload_form.xlsx_file.data.filename)
         flash(upload_form.errors['xlsx_file'][0])
     return redirect(url_for('.list_meals'))
+
+
+@meals.route("/meals/add/<dish_type>", methods=["GET", "POST"])
+def add_dish(dish_type: str):
+    nav_elts = {
+        "dish": "Dish",
+        # "add_composed_meal": "Composed meal"
+    }
+    dish_form = DishForm()
+    if dish_form.validate_on_submit():
+        dish_name: str = dish_form.name.data.strip()
+        dish_id: str = re.sub("[^A-Z0-9]", "_", dish_name.upper())
+        dish = Dish(
+            id=dish_id,
+            name=dish_name,
+            category=dish_form.moment.data,
+            prep_time_m=dish_form.prep_time.data,
+            cooking_time_m=dish_form.cooking_time.data,
+            periodicity_d=dish_form.periodicity.data
+        )
+        try:
+            db.session.add(dish)
+            db.session.commit()
+            flash(f"{dish.name} added")
+            return redirect(url_for(".list_meals"))
+        except IntegrityError as e:
+            db.session.rollback()
+    if dish_type == "dish":
+        del dish_form.elements_select2
+    else:
+        del dish_form.category_select2
+    return render_template("add_dish.html", nav_elts=nav_elts, current_nav=dish_type, dish_form=dish_form)
+
+@meals.route("/meals/categories")
+def dish_categories():
+    categories = [c[0] for c in db.session.query(Dish.category).distinct().all()]
+    # TODO: find a way out of this multiple semantic in the category field, it's ugly
+    cat_not_moment = [c for c in categories if c not in ["Lunch", "Dinner", "Both"]]
+    return jsonify({"results":
+            [{"id": i, "text": c} for i, c in enumerate(cat_not_moment)]})
+
+@meals.route("/js/add-dish-script")
+def add_dish_script():
+    return render_template("add-dish-script.js")
+

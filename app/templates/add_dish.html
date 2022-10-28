@@ -15,13 +15,21 @@
 {% endfor %}
 </ul>
 
-{% from 'bootstrap4/form.html' import render_form %}
+{% from 'bootstrap4/form.html' import render_field %}
 
 
 <div class="col-md-4">
-    {{ render_form(dish_form) }}
+    {{ dish_form.hidden_tag() }}
+    {{ render_field(dish_form.name) }}
+    {{ render_field(dish_form.prep_time) }}
+    {{ render_field(dish_form.cooking_time) }}
+    {{ render_field(dish_form.periodicity) }}
+    {{ render_field(dish_form.moment) }}
+    {{ render_field(dish_form.category_select2) }}
+    {{ render_field(dish_form.submit) }}
 </div>
 
 
+<script src="{{url_for('.add_dish_script')}}"></script>
 
 {% endblock %}
