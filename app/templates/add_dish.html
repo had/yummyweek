@@ -10,7 +10,7 @@
 <ul class="nav nav-tabs">
 {% for url, title in nav_elts.items() %}
   <li class="nav-item">
-    <a class="nav-link {{'active' if url == current_nav}}" href="{{url_for(".add_dish", dish_type=url)}}"><h4>{{title}}</h4></a>
+    <a class="nav-link {{'active' if url == dish_type}}" href="{{url_for(".add_dish", dish_type=url)}}"><h4>{{title}}</h4></a>
   </li>
 {% endfor %}
 </ul>
@@ -19,17 +19,23 @@
 
 
 <div class="col-md-4">
+    <form method="POST" action="{{url_for('.add_dish', dish_type=dish_type)}}">
     {{ dish_form.hidden_tag() }}
     {{ render_field(dish_form.name) }}
+    {{ render_field(dish_form.moment) }}
+{% if dish_type == "dish" %}
     {{ render_field(dish_form.prep_time) }}
     {{ render_field(dish_form.cooking_time) }}
     {{ render_field(dish_form.periodicity) }}
-    {{ render_field(dish_form.moment) }}
     {{ render_field(dish_form.category_select2) }}
+{% else %}
+    {{ render_field(dish_form.elements_select2) }}
+{% endif %}
     {{ render_field(dish_form.submit) }}
+    </form>
 </div>
 
 
-<script src="{{url_for('.add_dish_script')}}"></script>
+<script src="{{url_for('.add_dish_script', dish_type=dish_type )}}"></script>
 
 {% endblock %}

@@ -56,20 +56,35 @@ def upload_meals():
 def add_dish(dish_type: str):
     nav_elts = {
         "dish": "Dish",
-        # "add_composed_meal": "Composed meal"
+        "composed_meal": "Composed meal"
     }
     dish_form = DishForm()
-    if dish_form.validate_on_submit():
+    if dish_form.is_submitted():
         dish_name: str = dish_form.name.data.strip()
         dish_id: str = re.sub("[^A-Z0-9]", "_", dish_name.upper())
-        dish = Dish(
-            id=dish_id,
-            name=dish_name,
-            category=dish_form.moment.data,
-            prep_time_m=dish_form.prep_time.data,
-            cooking_time_m=dish_form.cooking_time.data,
-            periodicity_d=dish_form.periodicity.data
-        )
+        if dish_type == "dish":
+            category = dish_form.moment.data
+            if category == "-" and dish_form.category_select2.data:
+                category = dish_form.category_select2.data
+            dish = Dish(
+                id=dish_id,
+                name=dish_name,
+                category=category,
+                prep_time_m=dish_form.prep_time.data,
+                cooking_time_m=dish_form.cooking_time.data,
+                periodicity_d=dish_form.periodicity.data,
+            )
+        elif dish_type == "composed_meal":
+            print(dish_form.elements_select2.data)
+            dish = Dish(
+                id=dish_id,
+                name=dish_name,
+                category=dish_form.moment.data,
+                prep_time_m=0,
+                cooking_time_m=0,
+                periodicity_d=0,
+                elements=";".join(dish_form.elements_select2.data)
+            )
         try:
             db.session.add(dish)
             db.session.commit()
@@ -77,21 +92,23 @@ def add_dish(dish_type: str):
             return redirect(url_for(".list_meals"))
         except IntegrityError as e:
             db.session.rollback()
-    if dish_type == "dish":
-        del dish_form.elements_select2
-    else:
-        del dish_form.category_select2
-    return render_template("add_dish.html", nav_elts=nav_elts, current_nav=dish_type, dish_form=dish_form)
+    # if dish_type == "dish":
+    #     del dish_form.elements_select2
+    # else:
+    #     del dish_form.category_select2
+    return render_template("add_dish.html", nav_elts=nav_elts, dish_type=dish_type, dish_form=dish_form)
+
+@meals.route("/js/add-dish-script/<dish_type>")
+def add_dish_script(dish_type: str):
+    return render_template("add-dish-script.js", dish_type=dish_type)
 
 @meals.route("/meals/categories")
 def dish_categories():
     categories = [c[0] for c in db.session.query(Dish.category).distinct().all()]
     # TODO: find a way out of this multiple semantic in the category field, it's ugly
     cat_not_moment = [c for c in categories if c not in ["Lunch", "Dinner", "Both"]]
+    cat_not_moment.append("")
     return jsonify({"results":
-            [{"id": i, "text": c} for i, c in enumerate(cat_not_moment)]})
+            [{"id": c, "text": c} for c in cat_not_moment]})
 
-@meals.route("/js/add-dish-script")
-def add_dish_script():
-    return render_template("add-dish-script.js")
 
