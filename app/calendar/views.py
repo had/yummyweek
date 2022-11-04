@@ -1,5 +1,4 @@
 from itertools import groupby
-from typing import Optional
 
 from flask import jsonify, request, render_template, redirect, url_for
 
@@ -9,7 +8,7 @@ from .forms import SelectMealForm
 from datetime import date
 import calendar as py_cal
 from app.meals.meal_history import get_history, set_history
-from ..meals.dao import get_dish_names, ComposedMeal
+from ..meals.dao import get_dish_names
 from ..planner.suggestions_dao import get_suggestions, get_committed_suggestions, remove_suggestions
 
 weekdays = list(py_cal.day_name)

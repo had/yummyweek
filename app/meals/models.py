@@ -22,18 +22,13 @@ class Dish(db.Model):
     cooking_time_comments = db.Column(db.String)
     periodicity_d = db.Column(db.Integer, default=0, nullable=False)
     tags = db.Column(db.String)
+    # note: this is a pipe-separated string with list and quantity of ingredients (see unit-tests)
+    ingredients = db.Column(db.String)
 
     def __repr__(self):
         params = ", ".join([f"{a}={getattr(self, a)}" for a in ["id", "name", "category", "elements", "prep_time_m",
                                                                 "cooking_time_m", "periodicity_d"]])
         return f"Dish({params})"
-
-
-class Recipe(db.Model):
-    __tablename__ = "recipes"
-    id = db.Column(db.String, primary_key=True)
-    # note: this is a pipe-separated string with list and quantity of ingredients (see unit-tests)
-    ingredients = db.Column(db.String)
 
 
 class Ingredient(db.Model):

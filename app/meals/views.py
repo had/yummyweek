@@ -35,15 +35,12 @@ def upload_meals():
             f.save(fpath)
             xlsx_reader = XlsxReader(fpath)
             dishes_added = MealsDBAccess.add_all_dishes(db, xlsx_reader.get_dishes())
-            recipes_added = MealsDBAccess.add_all_recipes(db, xlsx_reader.get_recipes())
             ingredients_added = MealsDBAccess.add_all_ingredients(db, xlsx_reader.get_ingredients())
             if dishes_added:
                 flash(f"Added {dishes_added} dishes from {filename}")
-            if recipes_added:
-                flash(f"Added {recipes_added} recipes from {filename}")
             if ingredients_added:
                 flash(f"Added {ingredients_added} ingredients from {filename}")
-            if dishes_added+recipes_added+ingredients_added == 0:
+            if dishes_added+ingredients_added == 0:
                 flash(f"Could not add anything from {filename}")
             os.remove(fpath)
     else:
@@ -85,6 +82,8 @@ def add_dish(dish_type: str):
                 periodicity_d=0,
                 elements=";".join(dish_form.elements_select2.data)
             )
+        else:
+            raise Exception("Unexpected dish_type")
         try:
             db.session.add(dish)
             db.session.commit()
@@ -92,10 +91,6 @@ def add_dish(dish_type: str):
             return redirect(url_for(".list_meals"))
         except IntegrityError as e:
             db.session.rollback()
-    # if dish_type == "dish":
-    #     del dish_form.elements_select2
-    # else:
-    #     del dish_form.category_select2
     return render_template("add_dish.html", nav_elts=nav_elts, dish_type=dish_type, dish_form=dish_form)
 
 @meals.route("/js/add-dish-script/<dish_type>")

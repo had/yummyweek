@@ -2,7 +2,7 @@ import os
 
 from cachetools.func import ttl_cache
 
-from app.meals.models import Recipe, Dish, Ingredient
+from app.meals.models import Dish, Ingredient
 
 mock_food_env = os.environ.get('YUMMYWEEK_XLS')
 
@@ -32,16 +32,6 @@ class XlsxReader:
     @ttl_cache(maxsize=1, ttl=300)
     def get_dishes(self) -> list[Dish]:
         return self.to_dishes()
-
-    def get_recipes(self) -> list[Recipe]:
-        import pandas as pd
-        import numpy as np
-        recipes = []
-        recipes_df = pd.read_excel(self.path, sheet_name="food_recipes").replace({np.nan: None})
-        for _, row in recipes_df.iterrows():
-            d = row.to_dict()
-            recipes.append(Recipe(**d))
-        return recipes
 
     def get_ingredients(self) -> list[Ingredient]:
         import pandas as pd

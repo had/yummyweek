@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from .models import MealType, Recipe, Dish, Ingredient
+from .models import MealType, Dish, Ingredient
 from itertools import product
 from collections import defaultdict
 
@@ -9,10 +9,6 @@ class MealsDBAccess:
     @staticmethod
     def get_dishes() -> list[Dish]:
         return Dish.query.all()
-
-    @staticmethod
-    def get_recipes() -> list[Dish]:
-        return Recipe.query.all()
 
     @staticmethod
     def get_ingredients() -> list[Dish]:
@@ -24,18 +20,6 @@ class MealsDBAccess:
         for d in dishes:
             try:
                 db.session.add(d)
-                db.session.commit()
-                added += 1
-            except IntegrityError as e:
-                db.session.rollback()
-        return added
-
-    @staticmethod
-    def add_all_recipes(db, recipes: list[Recipe]) -> int:
-        added = 0
-        for r in recipes:
-            try:
-                db.session.add(r)
                 db.session.commit()
                 added += 1
             except IntegrityError as e:
@@ -56,7 +40,6 @@ class MealsDBAccess:
 
 
 meal_retriever = MealsDBAccess()
-recipes_retriever = MealsDBAccess()
 ingredients_retriever = MealsDBAccess()
 
 
@@ -71,17 +54,13 @@ def get_dish_dict() -> dict[str, Dish]:
     return {d.id: d for d in all_dishes}
 
 
-def get_recipes() -> list[Recipe]:
-    return recipes_retriever.get_recipes()
-
-
 def get_ingredient_per_category() -> dict[str, str]:
     ingredients = ingredients_retriever.get_ingredients()
     return {i.ingredient: i.category for i in ingredients}
 
 
 class ComposedMeal:
-    def __init__(self, dishes: list[Dish], meal_type: MealType):
+    def __init__(self, dishes: list[Dish], meal_type: MealType = MealType.both):
         self.dishes = dishes
         self.id = "+".join([d.id for d in dishes])
         self.name = ' & '.join([d.name for d in dishes])
