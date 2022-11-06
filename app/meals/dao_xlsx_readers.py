@@ -20,13 +20,12 @@ class XlsxReader:
         dishes = []
         for _, row in dishes_df.iterrows():
             d = row.to_dict()
-            if d['active'] != 'Y':
-                continue
-            del d['active']
             try:
-                dishes.append(Dish(**d))
-            except:
-                print("XlsxDishReader Issue with " + d['id'])
+                dish = Dish.from_row(d)
+                if dish:
+                    dishes.append(dish)
+            except Exception as e:
+                print("XlsxDishReader Issue with " + d['id'], e)
         return dishes
 
     @ttl_cache(maxsize=1, ttl=300)
@@ -40,6 +39,12 @@ class XlsxReader:
         ingredients_df = pd.read_excel(self.path, sheet_name="food_ingredients_categories").replace({np.nan: None})
         for _, row in ingredients_df.iterrows():
             d = row.to_dict()
-            ingredients.append(Ingredient(**d))
+            print(d)
+            # fix that in XLSX file defintion
+            d['name'] = d['ingredient']
+            del d['ingredient']
+            i = Ingredient(**d)
+            ingredients.append(i)
+            print(f"Ingredient id={i.id}, name={i.name}, category={i.category}")
         return ingredients
 

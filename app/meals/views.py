@@ -34,8 +34,9 @@ def upload_meals():
             )
             f.save(fpath)
             xlsx_reader = XlsxReader(fpath)
-            dishes_added = MealsDBAccess.add_all_dishes(db, xlsx_reader.get_dishes())
+            # ingredients are required to build dishes, so add ingredients to DB first
             ingredients_added = MealsDBAccess.add_all_ingredients(db, xlsx_reader.get_ingredients())
+            dishes_added = MealsDBAccess.add_all_dishes(db, xlsx_reader.get_dishes())
             if dishes_added:
                 flash(f"Added {dishes_added} dishes from {filename}")
             if ingredients_added:

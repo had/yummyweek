@@ -11,7 +11,7 @@ class MealsDBAccess:
         return Dish.query.all()
 
     @staticmethod
-    def get_ingredients() -> list[Dish]:
+    def get_ingredients() -> list[Ingredient]:
         return Ingredient.query.all()
 
     @staticmethod
@@ -35,6 +35,7 @@ class MealsDBAccess:
                 db.session.commit()
                 added += 1
             except IntegrityError as e:
+                print("ADD_ALL_INGREDIENT ERROR ", e)
                 db.session.rollback()
         return added
 
@@ -56,7 +57,7 @@ def get_dish_dict() -> dict[str, Dish]:
 
 def get_ingredient_per_category() -> dict[str, str]:
     ingredients = ingredients_retriever.get_ingredients()
-    return {i.ingredient: i.category for i in ingredients}
+    return {i.name: i.category for i in ingredients}
 
 
 class ComposedMeal:
